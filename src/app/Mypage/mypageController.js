@@ -20,7 +20,7 @@ exports.getMypage = async function (req, res) {
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
 
     let sumSelectMypages = await mypageProvider.selectMypage(userId);
-
+    console.log(sumSelectMypages);
     return res.send({
         isSuccess: true,
         code: 1000,
