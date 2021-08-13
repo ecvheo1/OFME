@@ -97,7 +97,6 @@ module.exports = {
     QNA_REWARD_NOT_EXIST : { "isSuccess": false, "code": 3140, "message": "리워드가 부족하여 해당 QnA 잠금해제를 할 수 없습니다." },
     QNA_AROUND_ANSEWER_NOT_EXIST : { "isSuccess": false, "code": 3141, "message": "해당 질문에 대한 답변이 없습니다." },
 
-    Test : {},
     //Connection, Transaction 등의 서버 오류
     DB_ERROR : { "isSuccess": false, "code": 4000, "message": "데이터 베이스 에러"},
     SERVER_ERROR : { "isSuccess": false, "code": 4001, "message": "서버 에러"},
