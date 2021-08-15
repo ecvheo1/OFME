@@ -9,16 +9,17 @@ module.exports = function(app){
     app.get('/characters/actions', jwtMiddleware, main.selectActions);
 
 
+
     // 메인화면 조회 API 2
     app.get('/characters2', jwtMiddleware, main.getCharacters2);
 
     // 컨셉 시간 저장 API
-    app.patch('/characters/timers', jwtMiddleware, main.patchCharactersTimer);
+    app.patch('/characters/timers', jwtMiddleware, main.patchTimer);
 
-    // 4. 컨셉 사용 종료 API
-    app.patch('/characters/ends', jwtMiddleware, main.patchCharactersEnd);
+    // 컨셉 사용 종료 API
+    app.patch('/characters/ends', jwtMiddleware, main.patchEnd);
 
-    // 5. 컨셉 평점 등록 API
+    // 컨셉 평점 등록 API
     app.patch('/characters/ratings', jwtMiddleware, main.patchRating);
 
 };

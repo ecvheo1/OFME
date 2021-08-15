@@ -40,42 +40,57 @@ exports.editTimer = async function (userId, timer) {
     }
 };
 
-/**
- * API No. 4
- * API Name : 컨셉 사용 종료 API
- */
-exports.updateCharactersEnd = async function (userId, timer) {
+
+exports.editEnd = async function(userId, timer) {
     try {
-        const updateParams = [timer, userId];
         const connection = await pool.getConnection(async (conn) => conn);
+        try {
 
-        const updateCharactersEndResult = await mainDao.updateCharactersEnd(connection, updateParams);
+            await connection.beginTransaction();
 
-        connection.release();
-        return updateCharactersEndResult;
+            const updateEndResult = await mainDao.updateEnd(connection, userId, timer);
 
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS);
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - editEnd Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
     } catch (err) {
-        logger.error(`App - createMain Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - editEnd Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
 
-/**
- * API No. 5
- * API Name : 컨셉 평점 등록 API
- */
-exports.patchRating = async function (conceptId, conceptPoint) {
+
+exports.editRating = async function (userId, conceptPoint) {
     try {
-        const updateParams = [conceptPoint, conceptId];
         const connection = await pool.getConnection(async (conn) => conn);
+        try {
+            await connection.beginTransaction();
 
-        const updateRatingResult = await mainDao.updateRating(connection, updateParams);
+            const updateRatingResult = await mainDao.updateRating(connection, userId, conceptPoint);
 
-        connection.release();
-        return updateRatingResult;
+            await connection.commit();
+            connection.release();
 
+            return response(baseResponse.SUCCESS);
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - editRating Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
     } catch (err) {
-        logger.error(`App - createMain Service error\n: ${err.message}`);
+        logger.error(`App - editRating Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };

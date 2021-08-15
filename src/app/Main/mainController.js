@@ -49,62 +49,7 @@ exports.selectActions = async function (req, res) {
 
 
 
-/**
- * API No. 5
- * API Name : 컨셉 평점 등록 API
- * [PATCH] /characters/ratings
- */
-exports.patchRating = async function (req, res) {
-    const userId = req.verifiedToken.userId;
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-    
-    const {conceptId, conceptPoint} = req.body;
 
-    if (!conceptId)
-        return res.send(response(baseResponse.MAIN_CONCEPT_NOT_EXIST));
-    else if (!conceptPoint)
-        return res.send(response(baseResponse.MAIN_STAR_NOT_EXIST));
-    else if (!Number.isInteger(conceptPoint))
-        return res.send(response(baseResponse.MAIN_INT_STAR_NOT_EXIST));
-    else if (0 >= conceptPoint || conceptPoint >= 6)
-        return res.send(response(baseResponse.MAIN_INT_STAR_NOT_EXIST));
-
-    const selectmainIdRows = await mainProvider.selectmainId(conceptId);
-
-    if (selectmainIdRows[0].userId != userId)
-        return res.send(response(baseResponse.DIARY_USER_NOT_EXIST));
-
-    const patchRatingRows = await mainService.patchRating(conceptId, conceptPoint);
-
-    if(patchRatingRows.affectedRows === 0)
-        return res.send(response(baseResponse.MAIN_CHARACTER_NOT_EXIST));
-    
-    return res.send(response(baseResponse.SUCCESS));
-};
-
-
-
-exports.patchCharactersEnd = async function (req, res) {
-    const userId = req.verifiedToken.userId;
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-    
-    const timer = req.body;
-
-    if (!timer)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-
-    const updateCharactersEndRows = await mainService.updateCharactersEnd(userId, timer.timer);
-
-    if(updateCharactersEndRows.affectedRows === 0) return res.send(response(baseResponse.MAIN_CHARACTER_NOT_EXIST));
-    
-    
-    const selectCharactersIdRows = await mainProvider.selectCharactersId(userId);
-    return res.send(response(baseResponse.SUCCESS, selectCharactersIdRows));
-};
 
 exports.getCharacters2 = async function(req, res) {
 
@@ -128,7 +73,7 @@ exports.getCharacters2 = async function(req, res) {
     }
 }
 
-exports.patchCharactersTimer = async function (req, res) {
+exports.patchTimer = async function (req, res) {
     const userId = req.verifiedToken.userId;
     const timer = req.body.timer;
 
@@ -143,4 +88,41 @@ exports.patchCharactersTimer = async function (req, res) {
     const editTimerInfo = await mainService.editTimer(userId, timer);
 
     return res.send(editTimerInfo);
+};
+
+exports.patchEnd = async function (req, res) {
+    const userId = req.verifiedToken.userId;
+    const timer = req.body.timer;
+    
+    // 컨셉 진행중인지 확인
+    const conceptProgressResult = await mainProvider.retreiveConceptProgress(userId);
+    if(conceptProgressResult.length < 1)
+        return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_NOT));
+    
+    if (!timer)
+        return res.send(response(baseResponse.CONCEPT_TIMER_EXIST));
+    
+    // 컨셉 진행 시간 저장 후 종료
+    const editInfo = await mainService.editEnd(userId, timer);
+
+    // 컨셉 종료 화면 조회
+    const concpetEndDataResult = await mainProvider.retreiveConceptEndData(userId);
+    
+    return res.send(response(baseResponse.SUCCESS, concpetEndDataResult));
+};
+
+exports.patchRating = async function (req, res) {
+    const userId = req.verifiedToken.userId;
+    const conceptPoint = req.body.conceptPoint;
+
+    if (!conceptPoint)
+        return res.send(response(baseResponse.CONCEPT_STAR_EMPTY));
+    else if (!Number.isInteger(conceptPoint))
+        return res.send(response(baseResponse.CONCEPT_STAR_ERROR));
+    else if (0 >= conceptPoint || conceptPoint >= 6)
+        return res.send(response(baseResponse.CONCEPT_STAR_ERROR));
+
+    const editRatingInfo = await mainService.editRating(userId, conceptPoint);
+    
+    return res.send(response(baseResponse.SUCCESS));
 };

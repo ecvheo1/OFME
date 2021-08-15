@@ -45,6 +45,8 @@ module.exports = {
     CONCEPT_CONCEPTID_ERROR : {"isSuccess": false, "code": 2029, "message": "stageTwoResult 값은 1~20 사이의 값을 입력해주세요."},
     CONCEPT_TIMER_EXIST : {"isSuccess": false, "code": 2030, "message": "timer 값을 입력해주세요."},
     CONCEPT_PROGRESS_NOT : {"isSuccess": false, "code": 2031, "message": "컨셉이 진행중이지 않습니다."},
+    CONCEPT_STAR_EMPTY : { "isSuccess": false, "code": 2032, "message": "등록할 별점을 입력해주세요." },
+    CONCEPT_STAR_ERROR : { "isSuccess": false, "code": 2033, "message": "별점은 정수 1~5로 입력해주세요." },
 
 
 
@@ -70,9 +72,7 @@ module.exports = {
     // 메인 error
     MAIN_CHARACTER_NOT_EXIST : { "isSuccess": false, "code": 3030, "message": "진행중인 컨셉이 없습니다. 컨셉을 먼저 정해주세요." },
     MAIN_TIMER_NOT_EXIST : { "isSuccess": false, "code": 3031, "message": "타이머가 입력되지 않았습니다." },
-    MAIN_CONCEPT_NOT_EXIST : { "isSuccess": false, "code": 3032, "message": "별점을 등록할 컨셉인덱스를 정해주세요." },
-    MAIN_STAR_NOT_EXIST : { "isSuccess": false, "code": 3033, "message": "등록할 별점을 입력해주세요." },
-    MAIN_INT_STAR_NOT_EXIST : { "isSuccess": false, "code": 3034, "message": "별점은 정수 1~5로 입력해주세요." },
+    
 
     // 다이어리 error
     DIARY_NOT_EXIST : { "isSuccess": false, "code": 3110, "message": "다이어리가 존재하지 않습니다." },

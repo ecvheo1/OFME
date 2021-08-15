@@ -36,15 +36,7 @@ order by id DESC limit 1;
   return selectCharactersIdRow;
 }
 
-async function updateRating(connection, Params) {
-  const updateRatingQuery = `
-update UserConcept
-set conceptPoint = ?
-where id = ?;
-                `;
-  const [updateRatingRow] = await connection.query(updateRatingQuery, Params);
-  return updateRatingRow;
-}
+
 
 async function selectmainId(connection, conceptId) {
   const selectmainIdQuery = `
@@ -136,10 +128,45 @@ async function updateTimer(connection, userId, timer) {
   return updateTimerRow;
 }
 
+// 컨셉 시간 저장 후 종료
+async function updateEnd(connection, userId, timer) {
+  const updateEndQuery = `
+  update UserConcept
+  set timer = ?, status = 'End'
+  where userId = ? and status = 'Activated';
+  `;
+  const [updateEndRow] = await connection.query(updateEndQuery, [timer, userId]);
+  return updateEndRow;
+}
+
+// 컨셉 종료 화면 조회
+async function selectConceptEndData(connection, userId) {
+  const selectConceptEndDataQuery = `
+  SELECT UserConcept.timer, ConceptImage.url, UserConcept.conceptId
+  FROM UserConcept
+  INNER JOIN ConceptImage on  UserConcept.conceptId = ConceptImage.conceptId
+  WHERE UserConcept.userId = ? and ConceptImage.situation = 'default1'
+  ORDER BY UserConcept.id DESC limit 1;
+  `
+  const [selectConceptEndData] = await connection.query(selectConceptEndDataQuery, userId);
+  return selectConceptEndData[0];
+}
+
+// 컨셉 종료 평점 등록
+async function updateRating(connection, userId, conceptPoint) {
+  const updateRatingQuery = `
+  UPDATE UserConcept
+  SET conceptPoint = ?
+  WHERE userId = ?
+  ORDER BY UserConcept.id DESC limit 1;
+  `;
+  const [updateRatingRow] = await connection.query(updateRatingQuery, [conceptPoint, userId]);
+  return updateRatingRow;
+}
+
 module.exports = {
   selectCharacters,
   updateCharactersEnd,
-  updateTimer,
   selectCharactersId,
   updateRating,
   selectmainId,
@@ -148,5 +175,9 @@ module.exports = {
   selectUserNickname,
   selectCharacterData,
   selectCharacterImage,
-  selectConceptProgress
+  selectConceptProgress,
+  updateTimer,
+  updateEnd,
+  selectConceptEndData,
+  updateRating
 };

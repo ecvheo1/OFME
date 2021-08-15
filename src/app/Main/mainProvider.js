@@ -101,3 +101,12 @@ exports.retreiveConceptProgress = async function(userId) {
 
   return conceptProgressResultResult;
 }
+
+exports.retreiveConceptEndData = async function(userId) {
+  const connection = await pool.getConnection(async(conn)=>conn);
+  const conceptEndDataResult = await mainDao.selectConceptEndData(connection, userId);
+
+  connection.release();
+
+  return conceptEndDataResult;
+}
