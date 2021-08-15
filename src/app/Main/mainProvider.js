@@ -50,3 +50,54 @@ exports.selectActions = async function (conceptId) {
 
   return selectActionsRows;
 };
+
+
+exports.retreiveUserConceptStatus = async function (userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userConceptStatusResult = await mainDao.selectUserConceptStatus(connection, userId);
+
+  connection.release();
+
+  return userConceptStatusResult;
+}
+
+exports.retreiveEmptyCharacter = async function(userId) {
+  const connection = await pool.getConnection(async(conn)=>conn);
+  let emptyCharacterResult = {};
+  const userNicknameResult = await mainDao.selectUserNickname(connection, userId);
+
+  emptyCharacterResult.conceptProgressCheck = 'X'
+  emptyCharacterResult.nickname = userNicknameResult.nickname;
+
+  connection.release();
+
+  return emptyCharacterResult;
+}
+
+exports.retreiveCharacter = async function(userId, characterStatus1, characterStatus2) {
+  const connection = await pool.getConnection(async(conn)=>conn);
+  let characterResult = {};
+  const characterImageResult = await mainDao.selectCharacterImage(connection, userId, characterStatus1, characterStatus2);
+  const characterDataResult = await mainDao.selectCharacterData(connection, userId);
+
+  let image = [];
+  for (i of characterImageResult) {
+    image.push(i.url)
+  }
+
+  characterResult.image = image;
+  characterResult.data = characterDataResult;
+  
+  connection.release();
+
+  return characterResult;
+}
+
+exports.retreiveConceptProgress = async function(userId) {
+  const connection = await pool.getConnection(async(conn)=>conn);
+  const conceptProgressResultResult = await mainDao.selectConceptProgress(connection, userId);
+
+  connection.release();
+
+  return conceptProgressResultResult;
+}

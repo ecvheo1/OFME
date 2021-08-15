@@ -43,6 +43,8 @@ module.exports = {
     CONCEPT_POST_STAGETWORESULT :  { "isSuccess": false, "code": 2027, "message": "stageTwoResult 값은 1~4 사이의 값을 입력해주세요."},
     QNA_QUESTIONID_NOT_EXIST : {"isSuccess": false, "code": 2028, "message": "questionId 값을 입력해주세요."},
     CONCEPT_CONCEPTID_ERROR : {"isSuccess": false, "code": 2029, "message": "stageTwoResult 값은 1~20 사이의 값을 입력해주세요."},
+    CONCEPT_TIMER_EXIST : {"isSuccess": false, "code": 2030, "message": "timer 값을 입력해주세요."},
+    CONCEPT_PROGRESS_NOT : {"isSuccess": false, "code": 2031, "message": "컨셉이 진행중이지 않습니다."},
 
 
 

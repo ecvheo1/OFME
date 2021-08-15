@@ -23,16 +23,7 @@ order by id DESC limit 1;
   return updateCharactersEndRow;
 }
 
-async function updateCharactersTimer(connection, updateParams) {
-  const updateCharactersQuery = `
-update UserConcept
-set timer = ?
-where userId = ? and status = 'Activated'
-order by id DESC limit 1;
-                `;
-  const [updateCharactersTimerRow] = await connection.query(updateCharactersQuery, updateParams);
-  return updateCharactersTimerRow;
-}
+
 
 async function selectCharactersId(connection, Params) {
   const selectCharactersIdQuery = `
@@ -75,12 +66,87 @@ where ConceptId = ? and status = 'Activated';
   return selectmainIdRow;
 }
 
+// 유저가 컨셉 진행중인지 확인
+async function selectUserConceptStatus(connection, userId) {
+  const selectUserConceptStatusQuery = `
+  SELECT userId, conceptId
+  FROM UserConcept
+  WHERE userId = ? and status = 'Activated';
+  `;
+  const [selectUserConceptStatusRow] = await connection.query(selectUserConceptStatusQuery, userId);
+  return selectUserConceptStatusRow;
+}
+
+// 유저 닉네임 조회
+async function selectUserNickname(connection, userId) {
+  const selectUserNicknameQuery = `
+  SELECT id, nickname
+  FROM User
+  WHERE id = ? and status = 'Activated';
+  `;
+  const [selectUserNicknameRow] = await connection.query(selectUserNicknameQuery, userId);
+  return selectUserNicknameRow[0];
+}
+
+// 컨셉 진행 중일 때, 메인화면 조회 (컨셉 정보)
+async function selectCharacterData(connection, userId) {
+  const selectCharacterDataQuery = `
+  SELECT ConceptData.id, ConceptData.name, ConceptData.advantage, ConceptData.habit,
+       ConceptData.behavior, ConceptData.value, ConceptData.music
+  FROM UserConcept
+  INNER JOIN ConceptData on UserConcept.conceptId = ConceptData.id
+  WHERE userId = ? and UserConcept.status = 'Activated';
+  `
+  const [selectCharacterDataRow] = await connection.query(selectCharacterDataQuery, userId);
+  return selectCharacterDataRow[0];
+}
+
+// 컨셉 진행 중 일 때, 메인화면 조회 (컨셉 이미지)
+async function selectCharacterImage(connection, userId, characterStatus1, characterStatus2) {
+  const selectCharacterImageQuery = `
+  SELECT ConceptImage.url
+  FROM ConceptImage 
+  INNER JOIN UserConcept on UserConcept.conceptId = ConceptImage.conceptId
+  WHERE UserConcept.userId = ? and (situation = ? or situation = ?) and UserConcept.status = 'Activated';
+  `
+  const [selectCharacterImageRow] = await connection.query(selectCharacterImageQuery, [userId, characterStatus1, characterStatus2]);
+  return selectCharacterImageRow;
+}
+
+// 컨셉 진행중인지 확인
+async function selectConceptProgress(connection, userId) {
+  const selectConceptProgressQuery = `
+  SELECT userId, conceptId, status
+  FROM UserConcept 
+  WHERE UserConcept.userId = ? and UserConcept.status = 'Activated';
+  `
+  const [selectConceptProgressRow] = await connection.query(selectConceptProgressQuery, userId);
+  return selectConceptProgressRow;
+}
+
+
+// 컨셉 시간 저장
+async function updateTimer(connection, userId, timer) {
+  const updateTimerQuery = `
+  update UserConcept
+  set timer = ?
+  where userId = ? and status = 'Activated';
+  `;
+  const [updateTimerRow] = await connection.query(updateTimerQuery, [timer, userId]);
+  return updateTimerRow;
+}
+
 module.exports = {
   selectCharacters,
   updateCharactersEnd,
-  updateCharactersTimer,
+  updateTimer,
   selectCharactersId,
   updateRating,
   selectmainId,
   selectActions,
+  selectUserConceptStatus,
+  selectUserNickname,
+  selectCharacterData,
+  selectCharacterImage,
+  selectConceptProgress
 };

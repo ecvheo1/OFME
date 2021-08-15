@@ -11,24 +11,31 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
 
-// Service: Create, Update, Delete 비즈니스 로직 처리
 
-/**
- * API No. 3
- * API Name : 컨셉 시간 저장 API
- */
-exports.updateCharactersTimer = async function (userId, timer) {
+exports.editTimer = async function (userId, timer) {
     try {
-        const updateParams = [timer, userId];
         const connection = await pool.getConnection(async (conn) => conn);
+        try {
 
-        const updateCharactersTimerResult = await mainDao.updateCharactersTimer(connection, updateParams);
+            await connection.beginTransaction();
 
-        connection.release();
-        return updateCharactersTimerResult;
+            const updateTimerResult = await mainDao.updateTimer(connection, userId, timer);
 
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS);
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - editTimer Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
     } catch (err) {
-        logger.error(`App - createMain Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - editTimer Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
