@@ -85,6 +85,7 @@ exports.retreiveCharacter = async function(userId, characterStatus1, characterSt
     image.push(i.url)
   }
 
+  characterResult.conceptProgressCheck = 'O';
   characterResult.image = image;
   characterResult.data = characterDataResult;
   
