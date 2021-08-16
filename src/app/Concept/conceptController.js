@@ -5,58 +5,85 @@ const conceptService = require("../Concept/conceptService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 
-const regexEmail = require("regex-email");
-const {emit} = require("nodemon");
 
-/**
- * API No. 1
- * API Name : 1단계 테스트 문제 조회 API
- * [GET] /concepts/stageOne
- */
+
 exports.getConceptStageOne = async function (req, res) {
     const userId = req.verifiedToken.userId;
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-    
-    const stageOneRows = await conceptProvider.selectConceptStageOne();
 
-    return res.send(response(baseResponse.SUCCESS, stageOneRows));
+    // 컨셉을 진행중인지 확인
+    const conceptProgressStatusResult = await conceptProvider.retreiveConceptProgressStatus(userId);
+    if (conceptProgressStatusResult.length > 0)
+        return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_ERROR));
+    
+    // 컨셉을 이미 진행했는지 확인
+    const conceptAlreadyStatusResult = await conceptProvider.retreiveConceptAlreadyStatusResult(userId);
+    if (conceptAlreadyStatusResult.length > 0)
+        return res.send(errResponse(baseResponse.CONCEPT_ALREADY_ERROR));  
+
+    // 1단계 테스트 문제 조회
+    const stageOneResult = await conceptProvider.retreiveStageOneResult();
+    
+    return res.send(response(baseResponse.SUCCESS, stageOneResult));
 };
 
-/**
- * API No. 2
- * API Name : 2단계 테스트 문제 조회 API
- * [GET] /concepts/stageTwo/:keywordId
- */
+
 exports.getConceptStageTwo = async function (req, res) {
     const userId = req.verifiedToken.userId;
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-
     const keywordId = req.params.keywordId;
-    const stageTwoRows = await conceptProvider.selectConceptStageTwo(keywordId);
 
-    if (stageTwoRows.length < 1) return res.send(response(baseResponse.CONCEPT_KEYWORD_NOT_EXIST));
-    else return res.send(response(baseResponse.SUCCESS, stageTwoRows));
+    if(!keywordId)
+        return res.send(errResponse(baseResponse.CONCEPT_KEYWORDID_EMPTY));
+    else if(keywordId < 1 || keywordId > 12)
+        return res.send(errResponse(baseResponse.CONCEPT_KEYWORDID_ERROR));
+    
+    // 2단계 테스트 조회
+    const stageTwoResult = await conceptProvider.retreiveStageTwoResult(keywordId);
+
+    return res.send(response(baseResponse.SUCCESS, stageTwoResult));
 };
 
-/**
- * API No. 3
- * API Name : 3단계 테스트 문제 조회 API
- * [GET] /concepts/stageThree
- */
+
 exports.getConceptStageThree = async function (req, res) {
     const userId = req.verifiedToken.userId;
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
 
-    const stageThreeRows = await conceptProvider.selectConceptStageThree();
+    const stageThreeResult = await conceptProvider.retreiveStageThreeResult();
 
-    return res.send(response(baseResponse.SUCCESS, stageThreeRows));
+    return res.send(response(baseResponse.SUCCESS, stageThreeResult));
 };
+
+
+exports.getConceptInfo = async function(req,res) {
+    const userId = req.verifiedToken.userId;
+    const {stageOneResult, stageTwoResult} = req.params;
+
+    if(stageOneResult < 1 || stageOneResult > 12)
+        return res.send(response(baseResponse.CONCEPT_POST_STAGEONERESULT));
+
+    if(stageTwoResult < 1 || stageTwoResult > 4)
+        return res.send(response(baseResponse.CONCEPT_POST_STAGETWORESULT));
+    
+    const conceptInfoResult = await conceptProvider.retrieveConceptInfo(stageOneResult, stageTwoResult);
+
+    return res.send(response(baseResponse.SUCCESS,conceptInfoResult));
+}
+
+
+exports.postConceptTwo = async function(req,res) {
+    const userId = req.verifiedToken.userId;
+    const conceptId = req.params.conceptId;
+
+    if(conceptId < 1 || conceptId > 20)
+        return res.send(response(baseResponse.CONCEPT_CONCEPTID_ERROR));
+    
+    const userConceptResponse = await conceptService.postUserConceptTwo(userId, conceptId);
+
+    return res.send(userConceptResponse);
+}
+
+
+
+
+
 
 /**
  * API No. 4
@@ -115,42 +142,3 @@ exports.getConceptId = async function (req, res) {
     } else
         return res.send(response(baseResponse.DB_ERROR));
 };
-
-exports.getConceptInfo = async function(req,res) {
-
-    const userId = req.verifiedToken.userId;
-    const {stageOneResult, stageTwoResult} = req.params;
-
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-
-    if(stageTwoResult < 1 || stageTwoResult > 4)
-        return res.send(response(baseResponse.CONCEPT_POST_STAGETWORESULT));
-    
-    const retrieveConceptInfoResult = await conceptProvider.retrieveConceptInfo(stageOneResult, stageTwoResult);
-
-    return res.send(response(baseResponse.SUCCESS,retrieveConceptInfoResult));
-}
-
-exports.postConceptTwo = async function(req,res) {
-
-    const userId = req.verifiedToken.userId;
-    const conceptId = req.params.conceptId;
-
-    const userRows = await userProvider.getUser(userId);
-    if (!userRows)
-        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
-
-    if(conceptId < 1 || conceptId > 20)
-        return res.send(response(baseResponse.CONCEPT_CONCEPTID_ERROR));
-    
-    const selectConceptIngRows = await conceptProvider.selectConceptIng(userId);
-    if (selectConceptIngRows.length > 0) {
-        return res.send(response(baseResponse.CONCEPT_POST_EXIST));
-    }
-
-    const postUserConceptResponse = await conceptService.postUserConceptTwo(userId, conceptId);
-
-    return res.send(postUserConceptResponse);
-}

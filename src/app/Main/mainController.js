@@ -83,12 +83,13 @@ exports.patchTimer = async function (req, res) {
         return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_NOT));
     
     if (!timer)
-        return res.send(response(baseResponse.CONCEPT_TIMER_EXIST));
+        return res.send(errResponse(baseResponse.CONCEPT_TIMER_EXIST));
     
     const editTimerInfo = await mainService.editTimer(userId, timer);
 
     return res.send(editTimerInfo);
 };
+
 
 exports.patchEnd = async function (req, res) {
     const userId = req.verifiedToken.userId;
@@ -100,7 +101,7 @@ exports.patchEnd = async function (req, res) {
         return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_NOT));
     
     if (!timer)
-        return res.send(response(baseResponse.CONCEPT_TIMER_EXIST));
+        return res.send(errResponse(baseResponse.CONCEPT_TIMER_EXIST));
     
     // 컨셉 진행 시간 저장 후 종료
     const editInfo = await mainService.editEnd(userId, timer);
@@ -111,16 +112,17 @@ exports.patchEnd = async function (req, res) {
     return res.send(response(baseResponse.SUCCESS, concpetEndDataResult));
 };
 
+
 exports.patchRating = async function (req, res) {
     const userId = req.verifiedToken.userId;
     const conceptPoint = req.body.conceptPoint;
 
     if (!conceptPoint)
-        return res.send(response(baseResponse.CONCEPT_STAR_EMPTY));
+        return res.send(errResponse(baseResponse.CONCEPT_STAR_EMPTY));
     else if (!Number.isInteger(conceptPoint))
-        return res.send(response(baseResponse.CONCEPT_STAR_ERROR));
+        return res.send(errResponse(baseResponse.CONCEPT_STAR_ERROR));
     else if (0 >= conceptPoint || conceptPoint >= 6)
-        return res.send(response(baseResponse.CONCEPT_STAR_ERROR));
+        return res.send(errResponse(baseResponse.CONCEPT_STAR_ERROR));
 
     const editRatingInfo = await mainService.editRating(userId, conceptPoint);
     

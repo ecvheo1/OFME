@@ -1,31 +1,66 @@
 const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
-
 const conceptDao = require("./conceptDao");
 
-// Provider: Read 비즈니스 로직 처리
-
-exports.selectConceptStageOne = async function () {
+exports.retreiveConceptProgressStatus = async function(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const conceptStageOneResult = await conceptDao.selectConceptStageOne(connection);
+  const conceptProgressStatusResult = await conceptDao.selectConceptProgressStatus(connection, userId);
   connection.release();
 
-  return conceptStageOneResult;
-};
-exports.selectConceptStageTwo = async function (keywordId) {
+  return conceptProgressStatusResult;
+}
+
+exports.retreiveConceptAlreadyStatusResult =async function(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const conceptStageTwoResult = await conceptDao.selectConceptStageTwo(connection, keywordId);
+  const conceptAlreadyStatusResult = await conceptDao.selectConceptAlreadyStatus(connection, userId);
   connection.release();
 
-  return conceptStageTwoResult;
-};
-exports.selectConceptStageThree = async function () {
+  return conceptAlreadyStatusResult;
+}
+
+exports.retreiveStageOneResult = async function () {
   const connection = await pool.getConnection(async (conn) => conn);
-  const conceptStageThreeResult = await conceptDao.selectConceptStageThree(connection);
+  const stageOneResult = await conceptDao.selectStageOne(connection);
   connection.release();
 
-  return conceptStageThreeResult;
+  return stageOneResult;
 };
+
+exports.retreiveStageTwoResult = async function (keywordId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const stageTwoResult = await conceptDao.selectStageTwo(connection, keywordId);
+  connection.release();
+
+  return stageTwoResult;
+};
+
+exports.retreiveStageThreeResult = async function () {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const stageThreeResult = await conceptDao.selectStageThree(connection);
+  connection.release();
+
+  return stageThreeResult;
+};
+
+exports.retrieveConceptInfo = async function(stageOneResult, stageTwoResult) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const conceptInfoResult = await conceptDao.selectConceptInfoResult(connection, stageOneResult, stageTwoResult);
+  connection.release();
+
+  return conceptInfoResult;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 exports.getConcept = async function (conceptId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const conceptResult = await conceptDao.selectConcept(connection, conceptId);
@@ -33,13 +68,7 @@ exports.getConcept = async function (conceptId) {
 
   return conceptResult;
 };
-exports.selectConceptIng = async function (userId) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const conceptResult = await conceptDao.selectConceptIng(connection, userId);
-  connection.release();
 
-  return conceptResult;
-};
 exports.getConceptId = async function () {
   const connection = await pool.getConnection(async (conn) => conn);
   const getConceptIdResult = await conceptDao.selectConceptId(connection);
@@ -56,10 +85,3 @@ exports.retreiveConceptId = async function(stageOneResult, stageTwoResult) {
   return selectTestResult;
 }
 
-exports.retrieveConceptInfo = async function(stageOneResult, stageTwoResult) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const selectTestResult = await conceptDao.selectConceptTestResultInfo(connection, stageOneResult, stageTwoResult);
-  connection.release();
-
-  return selectTestResult;
-}

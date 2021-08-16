@@ -6,12 +6,44 @@ const conceptDao = require("./conceptDao");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response} = require("../../../config/response");
 const {errResponse} = require("../../../config/response");
-
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
 
-// Service: Create, Update, Delete 비즈니스 로직 처리
+
+
+exports.postUserConceptTwo = async function (userId, conceptId) {
+    try {
+        const connection = await pool.getConnection(async (conn) => conn);
+        try {
+            
+            await connection.beginTransaction();
+
+            // 컨셉 등록
+            const insertUserConceptResponse = await conceptDao.insertUserConcept(connection, userId, conceptId);
+
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS, {"conceptId" : conceptId});
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - postUserConceptTwo Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - postUserConceptTwo Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+
+
+
+
+
 
 exports.postUserConcept = async function (userId, stageOneResult, stageTwoResult) {
     try {
@@ -42,31 +74,3 @@ exports.postUserConcept = async function (userId, stageOneResult, stageTwoResult
         return errResponse(baseResponse.DB_ERROR);
     }
 };
-
-exports.postUserConceptTwo = async function (userId, conceptId) {
-    try {
-        const connection = await pool.getConnection(async (conn) => conn);
-        try {
-            
-            await connection.beginTransaction();
-
-            // 컨셉 등록
-            const postUserConceptTwoResponse = await conceptDao.postUserConcept(connection, userId, conceptId);
-
-            await connection.commit();
-            connection.release();
-
-            return response(baseResponse.SUCCESS, {"conceptId" : conceptId});
-
-        } catch (err) {
-            await connection.rollback();
-            connection.release();
-            logger.error(`App - postUserConceptTwo Service error\n: ${err.message}`);
-            return errResponse(baseResponse.DB_ERROR);
-        }
-    } catch (err) {
-        logger.error(`App - postUserConceptTwo Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
-    }
-};
-

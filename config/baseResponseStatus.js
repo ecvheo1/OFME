@@ -47,6 +47,11 @@ module.exports = {
     CONCEPT_PROGRESS_NOT : {"isSuccess": false, "code": 2031, "message": "컨셉이 진행중이지 않습니다."},
     CONCEPT_STAR_EMPTY : { "isSuccess": false, "code": 2032, "message": "등록할 별점을 입력해주세요." },
     CONCEPT_STAR_ERROR : { "isSuccess": false, "code": 2033, "message": "별점은 정수 1~5로 입력해주세요." },
+    CONCEPT_KEYWORDID_EMPTY : { "isSuccess": false, "code": 2034, "message": "keywordId 값을 입력해주세요." },
+    CONCEPT_KEYWORDID_ERROR : { "isSuccess": false, "code": 2035, "message": "keywordId은 1~12 사이의 값을 입력해주세요." },
+    CONCEPT_POST_STAGEONERESULT :  { "isSuccess": false, "code": 2036, "message": "stageOneResult 값은 1~12 사이의 값을 입력해주세요."},
+
+    
 
 
 
@@ -68,6 +73,8 @@ module.exports = {
     CONCEPT_NOT_EXIST : { "isSuccess": false, "code": 3021, "message": "조회할 컨셉이 없습니다. 정확하게 입력해주세요." },
     CONCEPT_POST_NOT_EXIST : { "isSuccess": false, "code": 3022, "message": "등록할 컨셉이 존재하지 않습니다. 정확하게 입력해주세요." },
     CONCEPT_POST_EXIST : { "isSuccess": false, "code": 3023, "message": "컨셉이 이미 진행중 입니다. 종료하고 다시 시도해주세요." },
+    CONCEPT_PROGRESS_ERROR : { "isSuccess": false, "code": 3024, "message": "이미 컨셉이 진행중 입니다. 종료하고 다시 시도해주세요." },
+    CONCEPT_ALREADY_ERROR : { "isSuccess": false, "code": 3025, "message": "오늘 이미 진행한 컨셉이 존재합니다." },
 
     // 메인 error
     MAIN_CHARACTER_NOT_EXIST : { "isSuccess": false, "code": 3030, "message": "진행중인 컨셉이 없습니다. 컨셉을 먼저 정해주세요." },
