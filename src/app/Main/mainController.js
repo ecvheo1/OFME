@@ -62,7 +62,7 @@ exports.getCharacters2 = async function(req, res) {
     // 컨셉 진행중이 아닐 때(빈 메인화면)
     if (userConceptStatusResult.length < 1) {
         const emptyCharacterResult = await mainProvider.retreiveEmptyCharacter(userId);
-        return res.send(response(baseResponse.SUCCESS, emptyCharacterResult));
+        return res.send(response( { "isSuccess": true, "code": 1001, "message":"성공" } , emptyCharacterResult));
     }
     else { // 컨셉 진행중일 때
         if (!characterStatus) characterStatus = "default";
