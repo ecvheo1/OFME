@@ -5,7 +5,12 @@ const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 const regexEmail = require("regex-email");
 const {emit} = require("nodemon");
+const passport = require('passport');
+const kakaoStrategy = require('passport-kakao').Strategy
+const axios = require("axios");
 
+const jwt = require("jsonwebtoken");
+const secret_config = require("../../../config/secret");
 
 exports.postUsers = async function (req, res) {
 
@@ -123,3 +128,80 @@ exports.nickname = async function(req,res) {
 
     return res.send(userNickname);
 }
+
+// 카카오 인가코드 받기
+passport.use('kakao-login', new kakaoStrategy({ 
+    clientID: 'a6ea49ae917b0c13e34421ae4445b9c1',
+    callbackURL: '/auth/kakao/login/callback',
+}, async (accessToken, refreshToken, profile, done) => { 
+    console.log(accessToken);
+    console.log(profile); 
+}));
+
+
+/**
+ * API Name : 카카오 로그인
+ * [POST] /login/kakao
+ */
+exports.kakaoLogin = async function (req, res) {
+/**
+ * * Body: accessToken
+*/
+    const accessToken = req.body.accessToken;
+    const api_url = "https://kapi.kakao.com/v2/user/me";
+    var email, profileImg, nickname, id;
+    console.log(accessToken);
+    if(!accessToken)
+        return res.send(errResponse("카카오 토큰을 입력해주세요."))
+    
+    try{
+        axios({
+            url: api_url,
+            method: 'get',
+            headers: {
+                Authorization: 'Bearer ' + accessToken,
+            }
+        }).then(async function (response) {
+            id = response.data.id;
+            email = response.data.kakao_account.email;
+            if(!email) email = null;
+            profileImg = response.data.properties.profile_image;
+            nickname = response.data.properties.nickname;
+            
+            const socialId = 'K' + String(id);
+
+            // 가입이 되어있는 유저인지
+            const userIdResult = await userProvider.selectUsetId(socialId);
+
+            console.log(userIdResult);
+            if(userIdResult == undefined || userIdResult.length < 1){
+                console.log('회원가입');
+                const socialSignUpResult = await userService.socialSignUp(socialId, email, profileImg, nickname);
+                console.log(socialSignUpResult)
+                userId = socialSignUpResult.insertId;
+            }
+            else {
+                console.log('로그인');
+                userId = userIdResult.id;
+            }
+            console.log('토큰');
+            let token = await jwt.sign(
+                {
+                    userId: userId,
+                }, // 토큰의 내용(payload)
+                secret_config.jwtsecret, // 비밀키
+                {
+                    expiresIn: "365d",
+                    subject: "userInfo",
+                } // 유효 기간 365일
+            );
+            const tokenInsertResult = await userService.tokenInsert(token, userId);
+            return res.send({ isSuccess:true, code:1000, message:"카카오 로그인 성공", "result": { id: userId, jwt: token }});
+        }).catch(function (error) {
+            return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
+            });
+    } catch (err) {
+        logger.error(`App - kakaoLogin error\n: ${err.message}`);
+        return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
+    }
+};

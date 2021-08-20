@@ -58,7 +58,7 @@ module.exports = {
     LOGOUT_ALREADY_LOGOUT : { "isSuccess": false, "code": 3009, "message": "이미 로그아웃된 토큰입니다." },
     SIGNUP_USER_PASSWORD_CONFIRM : { "isSuccess": false, "code": 3010, "message": "비밀번호 수정에 실패하였습니다." },
     USER_PASSWORD_FAIL : { "isSuccess": false, "code": 3011, "message": "입력하신 이전 비밀번호가 틀립니다." },
-
+    KAKAO_LOGIN_FAILURE : { "isSuccess": false, "code": 3012, "message": "카카오 로그인에 실패하셨습니다." },
     // 컨셉 error
     CONCEPT_KEYWORD_NOT_EXIST : { "isSuccess": false, "code": 3020, "message": "키워드가 없습니다. 정확히 입력해주세요." },
     CONCEPT_NOT_EXIST : { "isSuccess": false, "code": 3021, "message": "조회할 컨셉이 없습니다. 정확하게 입력해주세요." },
