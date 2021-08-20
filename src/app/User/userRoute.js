@@ -1,6 +1,7 @@
 module.exports = function(app){
     const user = require('./userController');
     const jwtMiddleware = require('../../../config/jwtMiddleware');
+    const passport = require('passport');
 
     // 회원가입 API
     app.post('/sign-up', user.postUsers);
@@ -22,5 +23,9 @@ module.exports = function(app){
 
     // 유저 닉네임 조회 API
     app.get('/nickname', jwtMiddleware, user.nickname);
+    
+    // 카카오 로그인 API
+    app.post('/login/kakao', user.kakaoLogin);
 
+    app.get('/kakao', passport.authenticate('kakao-login'));
 };
