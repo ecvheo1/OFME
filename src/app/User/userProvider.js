@@ -67,3 +67,11 @@ exports.getUserNickname = async function(userId) {
 
   return response(baseResponse.SUCCESS, getUserNickname);
 }
+
+exports.selectUsetId = async function(socialId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userIdResult = await userDao.selectUsetId(connection, socialId);
+  connection.release();
+
+  return userIdResult;
+}
