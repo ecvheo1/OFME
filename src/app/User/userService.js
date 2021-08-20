@@ -191,3 +191,30 @@ exports.deleteUser = async function(userId, email) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+
+exports.socialSignUp = async function(socialId, email, profileImg, nickname) {
+    try {
+        const connection = await pool.getConnection(async(conn) => conn);
+        const userRows = [socialId, email, profileImg, nickname];
+        const socialSignUpRows = await userDao.socialSignUp(connection, userRows);
+        connection.release();
+
+        return socialSignUpRows;
+    } catch (err){
+        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.tokenInsert = async function(token, userId) {
+    try {
+        const connection = await pool.getConnection(async(conn) => conn);
+        const insertTokenRows = await userDao.insertToken(connection, userId, token);
+        connection.release();
+
+        return insertTokenRows;
+    } catch (err){
+        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
