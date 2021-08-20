@@ -54,7 +54,7 @@ exports.selectActions = async function (req, res) {
 exports.getCharacters2 = async function(req, res) {
 
     const userId = req.verifiedToken.userId;
-    const characterStatus = req.body.characterStatus; // default, water, sleep, sun, tv, reverse 
+    var characterStatus = req.body.characterStatus; // default, water, sleep, sun, tv, reverse 
 
     // 유저가 컨셉 진행중인지 확인
     const userConceptStatusResult = await mainProvider.retreiveUserConceptStatus(userId);
