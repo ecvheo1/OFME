@@ -145,7 +145,7 @@ async function selectUserNickname2(connection, userId) {
 }
 
 // 소셜로그인 유저 확인
-async function selectUsetId(connection, socialId) {
+async function selectUserId(connection, socialId) {
   const selectUserNicknameQuery = `
       select id
       from User
@@ -159,11 +159,23 @@ async function selectUsetId(connection, socialId) {
 // 소셜로그인 회원가입
 async function socialSignUp(connection, userRows) {
   const socialSignUpQuery = `
-INSERT INTO User (socialId, email, imgUrl, nickname)
-VALUES (?, ?, ?, ?);
+INSERT INTO User (socialId, email, imgUrl)
+VALUES (?, ?, ?);
   `;
   
   const [Rows] = await connection.query(socialSignUpQuery, userRows);
+  return Rows;
+}
+
+// 첫 로그인 시 닉네임 설정
+async function nicknameInsert(connection, nicknameInsertRows) {
+  const socialSignUpQuery = `
+update User
+set nickname = ?
+where id = ?;
+  `;
+  
+  const [Rows] = await connection.query(socialSignUpQuery, nicknameInsertRows);
   return Rows;
 }
 
@@ -181,6 +193,7 @@ module.exports = {
   deleteUser,
   getUser,
   selectUserNickname2,
-  selectUsetId,
-  socialSignUp
+  selectUserId,
+  socialSignUp,
+  nicknameInsert
 };
