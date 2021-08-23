@@ -166,23 +166,27 @@ exports.kakaoLogin = async function (req, res) {
             email = response.data.kakao_account.email;
             if(!email) email = null;
             profileImg = response.data.properties.profile_image;
-            nickname = response.data.properties.nickname;
+            if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
             
             const socialId = 'K' + String(id);
 
             // 가입이 되어있는 유저인지
-            const userIdResult = await userProvider.selectUsetId(socialId);
-
+            const userIdResult = await userProvider.selectUserId(socialId);
+            let code, message;
             console.log(userIdResult);
             if(userIdResult == undefined || userIdResult.length < 1){
                 console.log('회원가입');
-                const socialSignUpResult = await userService.socialSignUp(socialId, email, profileImg, nickname);
+                const socialSignUpResult = await userService.socialSignUp(socialId, email, profileImg);
                 console.log(socialSignUpResult)
                 userId = socialSignUpResult.insertId;
+                code = 1001;
+                message = "회원가입성공, 닉네임 설정해주세요.";
             }
             else {
                 console.log('로그인');
                 userId = userIdResult.id;
+                code = 1000;
+                message = "카카오 로그인 성공";
             }
             console.log('토큰');
             let token = await jwt.sign(
@@ -196,7 +200,7 @@ exports.kakaoLogin = async function (req, res) {
                 } // 유효 기간 365일
             );
             const tokenInsertResult = await userService.tokenInsert(token, userId);
-            return res.send({ isSuccess:true, code:1000, message:"카카오 로그인 성공", "result": { id: userId, jwt: token }});
+            return res.send({ isSuccess:true, code:code, message:message, "result": { id: userId, jwt: token }});
         }).catch(function (error) {
             return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
             });
@@ -205,3 +209,28 @@ exports.kakaoLogin = async function (req, res) {
         return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
     }
 };
+
+exports.loginNickname = async function(req,res) {
+    const { nickname } = req.body;
+    const userId = req.verifiedToken.userId;
+    const userRows = await userProvider.getUser(userId);
+    if (!userRows)
+        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
+    
+    if(!nickname)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    
+    if(nickname.length < 2 || nickname.length > 10)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
+    
+    if(!/^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$/.test(nickname))
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_TYPE));
+    
+    // 닉네임 중복 확인
+    const nicknameRows = await userProvider.nicknameCheck(nickname);
+        if(nicknameRows.length > 0)
+            return res.send(errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME));
+    
+    const nicknameInsertRows = await userService.nicknameInsert(nickname, userId);
+    return res.send(nicknameInsertRows);
+}
