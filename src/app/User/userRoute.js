@@ -30,7 +30,4 @@ module.exports = function(app){
 
     // 로그인이 처음일 때 닉네임 설정 API
     app.post('/login/nickname', jwtMiddleware, user.loginNickname);
-    ////
-    ////
-    ////
 };
