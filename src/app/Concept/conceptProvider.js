@@ -44,7 +44,9 @@ exports.retreiveStageThreeResult = async function () {
 
 exports.retrieveConceptInfo = async function(stageOneResult, stageTwoResult) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const conceptInfoResult = await conceptDao.selectConceptInfoResult(connection, stageOneResult, stageTwoResult);
+  var conceptInfoResult = await conceptDao.selectConceptInfoResult(connection, stageOneResult, stageTwoResult);
+  var conceptResultImage = await conceptDao.selectConceptResultImage(connection, stageOneResult, stageTwoResult);
+  conceptInfoResult.url2 = conceptResultImage.url2;
   connection.release();
 
   return conceptInfoResult;
