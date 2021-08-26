@@ -8,7 +8,11 @@ const {emit} = require("nodemon");
 const passport = require('passport');
 const kakaoStrategy = require('passport-kakao').Strategy
 const axios = require("axios");
-
+const {pool} = require("../../../config/database");
+const fs = require("fs");
+const AppleAuth = require("apple-auth");
+const config = fs.readFileSync("config/appleConfig.json");
+const auth = new AppleAuth(config, "config/AuthKey.p8");
 const jwt = require("jsonwebtoken");
 const secret_config = require("../../../config/secret");
 
@@ -233,4 +237,27 @@ exports.loginNickname = async function(req,res) {
     
     const nicknameInsertRows = await userService.nicknameInsert(nickname, userId);
     return res.send(nicknameInsertRows);
+}
+
+exports.appleLogin = async function(req, res) {
+    const {code} = req.body;
+    let response = ``;
+    let idToken = ``;
+    
+    console.log(code);
+
+    const conn = await pool.getConnection();
+
+    try {
+        response = await auth.accessToken(code);
+        idToken = jwt.decode(response.id_token);
+        console.log(idToken);
+    } catch (err) {
+        console.log(err);
+        return res.json({
+        isSuccess: true,
+        code: 2000,
+        message: "유효하지 않은 code입니다.",
+        });
+    }
 }

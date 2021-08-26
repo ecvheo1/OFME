@@ -84,7 +84,7 @@ async function selectUserNickname(connection, userId) {
 async function selectCharacterData(connection, userId) {
   const selectCharacterDataQuery = `
   SELECT ConceptData.id, ConceptData.name, ConceptData.advantage, ConceptData.habit,
-       ConceptData.behavior, ConceptData.value, ConceptData.music
+       ConceptData.behavior, ConceptData.value, ConceptData.music, UserConcept.isFirstMain
   FROM UserConcept
   INNER JOIN ConceptData on UserConcept.conceptId = ConceptData.id
   WHERE userId = ? and UserConcept.status = 'Activated';
@@ -164,6 +164,19 @@ async function updateRating(connection, userId, conceptPoint) {
   return updateRatingRow;
 }
 
+
+// 컨셉 종료 평점 등록
+async function updateFirstMain(connection, userId) {
+  const updateFirstMainQuery = `
+  UPDATE UserConcept
+  SET isFirstMain = ?
+  WHERE userId = ? and status='Activated';
+  `;
+  const [updateFirstMainRow] = await connection.query(updateFirstMainQuery, ['F', userId]);
+  return updateFirstMainRow;
+}
+
+
 module.exports = {
   selectCharacters,
   updateCharactersEnd,
@@ -179,5 +192,6 @@ module.exports = {
   updateTimer,
   updateEnd,
   selectConceptEndData,
-  updateRating
+  updateRating,
+  updateFirstMain
 };

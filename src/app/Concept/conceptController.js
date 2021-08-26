@@ -74,6 +74,11 @@ exports.postConceptTwo = async function(req,res) {
 
     if(conceptId < 1 || conceptId > 20)
         return res.send(response(baseResponse.CONCEPT_CONCEPTID_ERROR));
+
+    // 컨셉을 진행중인지 확인
+    const conceptProgressStatusResult = await conceptProvider.retreiveConceptProgressStatus(userId);
+    if (conceptProgressStatusResult.length > 0)
+        return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_ERROR));
     
     const userConceptResponse = await conceptService.postUserConceptTwo(userId, conceptId);
 

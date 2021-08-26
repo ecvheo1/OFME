@@ -16,7 +16,7 @@ module.exports = function(app){
     app.patch('/characters/ratings', jwtMiddleware, main.patchRating);
 
 
-    
+
     // 1. 메인화면 조회 API (캐릭터)
     app.get('/characters', jwtMiddleware, main.getCharacters);
 

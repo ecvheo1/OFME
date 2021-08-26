@@ -94,3 +94,29 @@ exports.editRating = async function (userId, conceptPoint) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+
+
+exports.editFirstMain = async function (userId) {
+    try {
+        const connection = await pool.getConnection(async (conn) => conn);
+        try {
+            await connection.beginTransaction();
+
+            const updateFirstMainResult = await mainDao.updateFirstMain(connection, userId);
+
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS);
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - editFirstMain Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - editFirstMain Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
