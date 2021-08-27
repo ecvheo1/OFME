@@ -32,8 +32,7 @@ module.exports = function(app){
     app.post('/login/nickname', jwtMiddleware, user.loginNickname);
 
     // 애플 로그인 API
-    app.get("/login/apple", user.appleLogin);
-
+    app.post("/login/apple", user.appleLogin);
 
 
     
