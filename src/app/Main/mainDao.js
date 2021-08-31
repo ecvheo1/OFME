@@ -176,6 +176,17 @@ async function updateFirstMain(connection, userId) {
   return updateFirstMainRow;
 }
 
+// 컨셉 진행한 시간 조회(분)
+async function selectCharacterTime(connection, userId) {
+  const selectCharacterTimeQuery = `
+  SELECT TIMESTAMPDIFF(MINUTE, createAt, now()) AS clientTime
+  FROM UserConcept
+  WHERE userId = ? and UserConcept.status = 'Activated';
+  `;
+  const [selectCharacterTimeRow] = await connection.query(selectCharacterTimeQuery, userId);
+  return selectCharacterTimeRow[0];
+}
+
 
 module.exports = {
   selectCharacters,
@@ -193,5 +204,6 @@ module.exports = {
   updateEnd,
   selectConceptEndData,
   updateRating,
-  updateFirstMain
+  updateFirstMain,
+  selectCharacterTime
 };
