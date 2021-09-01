@@ -4,7 +4,7 @@ module.exports = function(app){
 
     
     // 메인화면 조회 API 2
-    app.get('/characters2', jwtMiddleware, main.getCharacters2);
+    app.get('/characters2/:characterStatus', jwtMiddleware, main.getCharacters2);
 
     // 컨셉 시간 저장 API
     app.patch('/characters/timers', jwtMiddleware, main.patchTimer);

@@ -54,8 +54,9 @@ exports.selectActions = async function (req, res) {
 exports.getCharacters2 = async function(req, res) {
 
     const userId = req.verifiedToken.userId;
-    var characterStatus = req.body.characterStatus; // default, water, sleep, sun, tv, reverse 
-
+    // var characterStatus = req.body.characterStatus; 
+    var characterStatus = req.params.characterStatus; // default, water, sleep, sun, tv, reverse 
+    
     // 유저가 컨셉 진행중인지 확인
     const userConceptStatusResult = await mainProvider.retreiveUserConceptStatus(userId);
     
@@ -65,7 +66,7 @@ exports.getCharacters2 = async function(req, res) {
         return res.send(response( { "isSuccess": true, "code": 1001, "message":"성공" } , emptyCharacterResult));
     }
     else { // 컨셉 진행중일 때
-        if (!characterStatus) characterStatus = "default";
+        //if (!characterStatus) characterStatus = "default";
         characterStatus1 = characterStatus + "1";
         characterStatus2 = characterStatus + "2";
         const characterResult = await mainProvider.retreiveCharacter(userId, characterStatus1,characterStatus2);
