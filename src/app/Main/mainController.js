@@ -94,18 +94,14 @@ exports.patchTimer = async function (req, res) {
 
 exports.patchEnd = async function (req, res) {
     const userId = req.verifiedToken.userId;
-    const timer = req.body.timer;
     
     // 컨셉 진행중인지 확인
     const conceptProgressResult = await mainProvider.retreiveConceptProgress(userId);
     if(conceptProgressResult.length < 1)
         return res.send(errResponse(baseResponse.CONCEPT_PROGRESS_NOT));
     
-    if (!timer)
-        return res.send(errResponse(baseResponse.CONCEPT_TIMER_EXIST));
-    
     // 컨셉 진행 시간 저장 후 종료
-    const editInfo = await mainService.editEnd(userId, timer);
+    const editInfo = await mainService.editEnd(userId);
 
     // 컨셉 종료 화면 조회
     const concpetEndDataResult = await mainProvider.retreiveConceptEndData(userId);

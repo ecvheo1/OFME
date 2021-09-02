@@ -41,14 +41,14 @@ exports.editTimer = async function (userId, timer) {
 };
 
 
-exports.editEnd = async function(userId, timer) {
+exports.editEnd = async function(userId) {
     try {
         const connection = await pool.getConnection(async (conn) => conn);
         try {
 
             await connection.beginTransaction();
 
-            const updateEndResult = await mainDao.updateEnd(connection, userId, timer);
+            const updateEndResult = await mainDao.updateEnd(connection, userId);
 
             await connection.commit();
             connection.release();

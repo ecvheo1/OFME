@@ -129,20 +129,20 @@ async function updateTimer(connection, userId, timer) {
 }
 
 // 컨셉 시간 저장 후 종료
-async function updateEnd(connection, userId, timer) {
+async function updateEnd(connection, userId) {
   const updateEndQuery = `
   update UserConcept
-  set timer = ?, status = 'End'
+  set status = 'End'
   where userId = ? and status = 'Activated';
   `;
-  const [updateEndRow] = await connection.query(updateEndQuery, [timer, userId]);
+  const [updateEndRow] = await connection.query(updateEndQuery, [userId]);
   return updateEndRow;
 }
 
 // 컨셉 종료 화면 조회
 async function selectConceptEndData(connection, userId) {
   const selectConceptEndDataQuery = `
-  SELECT UserConcept.timer, ConceptImage.url, UserConcept.conceptId
+  SELECT TIMESTAMPDIFF(MINUTE, UserConcept.createAt, now()) AS clientTime, ConceptImage.url, UserConcept.conceptId
   FROM UserConcept
   INNER JOIN ConceptImage on  UserConcept.conceptId = ConceptImage.conceptId
   WHERE UserConcept.userId = ? and ConceptImage.situation = 'default1'
