@@ -42,7 +42,7 @@ async function selectStageTwo(connection, keywordId) {
   WHERE keywordId = ? and status = 'Activated';
   `;
   const [CselectStageTwoRows] = await connection.query(CselectStageTwoQuery, keywordId);
-  return CselectStageTwoRows[0];
+  return CselectStageTwoRows;
 }
 
 
@@ -55,7 +55,7 @@ async function selectStageThree(connection) {
   ORDER BY rand() LIMIT 1;
   `;
   const [selectStageThreeRows] = await connection.query(selectStageThreeQuery);
-  return selectStageThreeRows[0];
+  return selectStageThreeRows;
 }
 
 
