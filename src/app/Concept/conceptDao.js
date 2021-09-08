@@ -42,7 +42,7 @@ async function selectStageTwo(connection, keywordId) {
   WHERE keywordId = ? and status = 'Activated';
   `;
   const [CselectStageTwoRows] = await connection.query(CselectStageTwoQuery, keywordId);
-  return CselectStageTwoRows[0];
+  return CselectStageTwoRows;
 }
 
 
@@ -55,7 +55,7 @@ async function selectStageThree(connection) {
   ORDER BY rand() LIMIT 1;
   `;
   const [selectStageThreeRows] = await connection.query(selectStageThreeQuery);
-  return selectStageThreeRows[0];
+  return selectStageThreeRows;
 }
 
 
@@ -71,6 +71,20 @@ async function selectConceptInfoResult(connection, stageOneResult, stageTwoResul
   const [selectConceptInfoResultRows] = await connection.query(selectConceptInfoResultQuery, [stageOneResult, stageTwoResult]);
   return selectConceptInfoResultRows[0];
 }
+
+// 컨셉 추천 테스트 결과 이미지
+async function selectConceptResultImage(connection, stageOneResult, stageTwoResult) {
+  const selectConceptResultImageQuery = `
+  SELECT url as url2
+  FROM ConceptData
+  JOIN ConceptSort on ConceptSort.conceptId = ConceptData.id
+  JOIN ConceptImage on ConceptImage.ConceptId = ConceptSort.conceptId
+  WHERE ConceptSort.testKeywordId = ? and ConceptSort.testAnswerId = ? and ConceptImage.situation = 'result';
+  `;
+  const [selectConceptResultImageRows] = await connection.query(selectConceptResultImageQuery, [stageOneResult, stageTwoResult]);
+  return selectConceptResultImageRows[0];
+}
+
 
 // 컨셉 등록
 async function insertUserConcept(connection, userId, conceptId) {
@@ -131,8 +145,8 @@ module.exports = {
   selectStageTwo,
   selectStageThree,
   selectConceptInfoResult,
+  selectConceptResultImage,
   insertUserConcept,
-
   selectConcept,
   selectConceptId,
   selectTestResult

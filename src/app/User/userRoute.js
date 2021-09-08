@@ -27,10 +27,14 @@ module.exports = function(app){
     // 카카오 로그인 API
     app.post('/login/kakao', user.kakaoLogin);
     app.get('/kakao', passport.authenticate('kakao-login'));
-
+    
     // 로그인이 처음일 때 닉네임 설정 API
     app.post('/login/nickname', jwtMiddleware, user.loginNickname);
-    ////
-    ////
-    ////
+
+    // 애플 로그인 API
+    app.post("/login/apple", user.appleLogin);
+
+    // 닉네임 중복확인 API
+    app.get('/login/nickname/:nicknames', user.getNickname);
+
 };

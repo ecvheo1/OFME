@@ -41,14 +41,14 @@ exports.editTimer = async function (userId, timer) {
 };
 
 
-exports.editEnd = async function(userId, timer) {
+exports.editEnd = async function(userId) {
     try {
         const connection = await pool.getConnection(async (conn) => conn);
         try {
 
             await connection.beginTransaction();
 
-            const updateEndResult = await mainDao.updateEnd(connection, userId, timer);
+            const updateEndResult = await mainDao.updateEnd(connection, userId);
 
             await connection.commit();
             connection.release();
@@ -91,6 +91,32 @@ exports.editRating = async function (userId, conceptPoint) {
         }
     } catch (err) {
         logger.error(`App - editRating Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+
+exports.editFirstMain = async function (userId) {
+    try {
+        const connection = await pool.getConnection(async (conn) => conn);
+        try {
+            await connection.beginTransaction();
+
+            const updateFirstMainResult = await mainDao.updateFirstMain(connection, userId);
+
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS);
+
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - editFirstMain Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - editFirstMain Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };

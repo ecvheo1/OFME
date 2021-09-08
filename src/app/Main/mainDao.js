@@ -84,7 +84,7 @@ async function selectUserNickname(connection, userId) {
 async function selectCharacterData(connection, userId) {
   const selectCharacterDataQuery = `
   SELECT ConceptData.id, ConceptData.name, ConceptData.advantage, ConceptData.habit,
-       ConceptData.behavior, ConceptData.value, ConceptData.music
+       ConceptData.behavior, ConceptData.value, ConceptData.music, UserConcept.isFirstMain
   FROM UserConcept
   INNER JOIN ConceptData on UserConcept.conceptId = ConceptData.id
   WHERE userId = ? and UserConcept.status = 'Activated';
@@ -129,20 +129,20 @@ async function updateTimer(connection, userId, timer) {
 }
 
 // 컨셉 시간 저장 후 종료
-async function updateEnd(connection, userId, timer) {
+async function updateEnd(connection, userId) {
   const updateEndQuery = `
   update UserConcept
-  set timer = ?, status = 'End'
+  set status = 'End'
   where userId = ? and status = 'Activated';
   `;
-  const [updateEndRow] = await connection.query(updateEndQuery, [timer, userId]);
+  const [updateEndRow] = await connection.query(updateEndQuery, [userId]);
   return updateEndRow;
 }
 
 // 컨셉 종료 화면 조회
 async function selectConceptEndData(connection, userId) {
   const selectConceptEndDataQuery = `
-  SELECT UserConcept.timer, ConceptImage.url, UserConcept.conceptId
+  SELECT TIMESTAMPDIFF(MINUTE, UserConcept.createAt, now()) AS clientTime, ConceptImage.url, UserConcept.conceptId
   FROM UserConcept
   INNER JOIN ConceptImage on  UserConcept.conceptId = ConceptImage.conceptId
   WHERE UserConcept.userId = ? and ConceptImage.situation = 'default1'
@@ -164,6 +164,30 @@ async function updateRating(connection, userId, conceptPoint) {
   return updateRatingRow;
 }
 
+
+// 컨셉 종료 평점 등록
+async function updateFirstMain(connection, userId) {
+  const updateFirstMainQuery = `
+  UPDATE UserConcept
+  SET isFirstMain = ?
+  WHERE userId = ? and status='Activated';
+  `;
+  const [updateFirstMainRow] = await connection.query(updateFirstMainQuery, ['F', userId]);
+  return updateFirstMainRow;
+}
+
+// 컨셉 진행한 시간 조회(분)
+async function selectCharacterTime(connection, userId) {
+  const selectCharacterTimeQuery = `
+  SELECT TIMESTAMPDIFF(MINUTE, createAt, now()) AS clientTime
+  FROM UserConcept
+  WHERE userId = ? and UserConcept.status = 'Activated';
+  `;
+  const [selectCharacterTimeRow] = await connection.query(selectCharacterTimeQuery, userId);
+  return selectCharacterTimeRow[0];
+}
+
+
 module.exports = {
   selectCharacters,
   updateCharactersEnd,
@@ -179,5 +203,7 @@ module.exports = {
   updateTimer,
   updateEnd,
   selectConceptEndData,
-  updateRating
+  updateRating,
+  updateFirstMain,
+  selectCharacterTime
 };

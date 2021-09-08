@@ -1,6 +1,7 @@
 const jwtMiddleware = require("../../../config/jwtMiddleware");
 const userProvider = require("../../app/User/userProvider");
 const userService = require("../../app/User/userService");
+const userDao = require("../../app/User/userDao");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
 const regexEmail = require("regex-email");
@@ -8,7 +9,11 @@ const {emit} = require("nodemon");
 const passport = require('passport');
 const kakaoStrategy = require('passport-kakao').Strategy
 const axios = require("axios");
-
+const {pool} = require("../../../config/database");
+const fs = require("fs");
+const AppleAuth = require("apple-auth");
+const config = fs.readFileSync("config/appleConfig.json");
+const auth = new AppleAuth(config, "config/AuthKey.p8");
 const jwt = require("jsonwebtoken");
 const secret_config = require("../../../config/secret");
 
@@ -180,7 +185,7 @@ exports.kakaoLogin = async function (req, res) {
                 console.log(socialSignUpResult)
                 userId = socialSignUpResult.insertId;
                 code = 1001;
-                message = "회원가입성공, 닉네임 설정해주세요.";
+                message = "회원가입성공(카카오), 닉네임 설정해주세요.";
             }
             else {
                 console.log('로그인');
@@ -233,4 +238,96 @@ exports.loginNickname = async function(req,res) {
     
     const nicknameInsertRows = await userService.nicknameInsert(nickname, userId);
     return res.send(nicknameInsertRows);
+}
+
+
+exports.appleLogin = async function(req, res) {
+    const { code } = req.body;
+
+    if(!code)
+      return res.send(errResponse(baseResponse.INPUT_APPLE_CODE));
+
+    let response = ``;
+    let idToken = ``;
+    
+    console.log(code);
+
+    const connection = await pool.getConnection();
+
+    try {
+        response = await auth.accessToken(code);
+        idToken = jwt.decode(response.id_token);
+        console.log(response, idToken);
+    } catch (err) {
+        console.log(err);
+        return res.json({isSuccess: true, code: 2000, message: "유효하지 않은 code입니다.",});
+    }
+
+    const email = idToken.email;
+    const appleId = idToken.sub;
+
+    const profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
+
+    console.log(email, appleId);
+
+
+    // 회원가입이 되어 있는 애플로그인 유저인지 확인
+    try {
+    const socialIdCheckRows = await userDao.socialIdCheck(connection, appleId);
+    console.log(socialIdCheckRows);
+    // 회원가입이 되어 있는 애플로그인 유저
+    if (socialIdCheckRows.length > 0) {
+        let token = await jwt.sign(
+            {
+            userId: socialIdCheckRows[0].userId,
+            }, 
+            secret_config.jwtsecret,
+            {
+            expiresIn: "365d",
+            subject: "userInfo",
+            }
+        );
+        const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].userId);
+        return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].userId, jwt: token }});
+    } else { // 회원가입이 안 되어 있는 애플로그인 유저
+        const insertAppleUserRows = await userDao.insertAppleUser(connection, appleId, email, profileImg);
+        let token = await jwt.sign(
+        {
+            userId: insertAppleUserRows.insertId,
+        }, 
+        secret_config.jwtsecret,
+        {
+            expiresIn: "365d",
+            subject: "userInfo",
+        }
+        );
+        const tokenInsertResult = await userService.tokenInsert(token, insertAppleUserRows.insertId);
+        return res.send({ isSuccess:true, code:1001, message:"회원가입성공(애플), 닉네임 설정해주세요.", "result": { id: insertAppleUserRows.insertId, jwt: token }});
+    }
+    } catch (err) {
+        console.log(err);
+        return res.json(errResponse(baseResponse.APPLE_LOGIN_FAILURE));
+    } finally {
+    connection.release();
+    }
+};
+
+exports.getNickname = async function(req, res) {
+    const nickname = req.params.nicknames;
+
+    if(!nickname)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    
+    if(nickname.length < 2 || nickname.length > 10)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
+    
+    if(!/^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$/.test(nickname))
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_TYPE));
+    
+    // 닉네임 중복 확인
+    const nicknameRows = await userProvider.nicknameCheck(nickname);
+        if(nicknameRows.length > 0)
+            return res.send(errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME));
+
+    return res.send({ isSuccess:true, code:1000, message:"사용 가능한 닉네임입니다."});
 }

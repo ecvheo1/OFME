@@ -50,6 +50,8 @@ module.exports = {
     CONCEPT_KEYWORDID_EMPTY : { "isSuccess": false, "code": 2034, "message": "keywordId 값을 입력해주세요." },
     CONCEPT_KEYWORDID_ERROR : { "isSuccess": false, "code": 2035, "message": "keywordId은 1~12 사이의 값을 입력해주세요." },
     CONCEPT_POST_STAGEONERESULT :  { "isSuccess": false, "code": 2036, "message": "stageOneResult 값은 1~12 사이의 값을 입력해주세요."},
+    INPUT_APPLE_CODE :  { "isSuccess": false, "code": 2037, "message": "APPLE 인가 코드(authorization code)를 입력해주세요" },
+
 
     
 
@@ -68,6 +70,7 @@ module.exports = {
     SIGNUP_USER_PASSWORD_CONFIRM : { "isSuccess": false, "code": 3010, "message": "비밀번호 수정에 실패하였습니다." },
     USER_PASSWORD_FAIL : { "isSuccess": false, "code": 3011, "message": "입력하신 이전 비밀번호가 틀립니다." },
     KAKAO_LOGIN_FAILURE : { "isSuccess": false, "code": 3012, "message": "카카오 로그인에 실패하셨습니다." },
+    APPLE_LOGIN_FAILURE : { "isSuccess": false, "code": 3013, "message": "애플 로그인에 실패하셨습니다." },
     
     // 컨셉 error
     CONCEPT_KEYWORD_NOT_EXIST : { "isSuccess": false, "code": 3020, "message": "키워드가 없습니다. 정확히 입력해주세요." },

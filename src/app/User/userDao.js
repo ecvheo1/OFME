@@ -179,6 +179,28 @@ where id = ?;
   return Rows;
 }
 
+// Apple socialId 존재 여부
+async function socialIdCheck(connection, appleId) {
+  const socialIdCheckQuery = `
+  SELECT id
+  FROM User
+  WHERE socialId = ? and status = 'Activated';
+  `;
+  const [socialIdCheckRow] = await connection.query(socialIdCheckQuery, appleId);
+  return socialIdCheckRow;
+}
+
+// Apple 소셜로그인 회원가입
+async function insertAppleUser(connection, appleId, email, profileImg) {
+  const insertAppleUserQuery = `
+  INSERT INTO User (socialId, email, imgUrl)
+  VALUES (?, ?, ?);
+  `;
+  const [insertAppleUserRow] = await connection.query(insertAppleUserQuery, [appleId, email, profileImg]);
+  return insertAppleUserRow;
+}
+
+
 module.exports = {
   selectUser,
   selectUserEmail,
@@ -195,5 +217,7 @@ module.exports = {
   selectUserNickname2,
   selectUserId,
   socialSignUp,
-  nicknameInsert
+  nicknameInsert,
+  socialIdCheck,
+  insertAppleUser
 };

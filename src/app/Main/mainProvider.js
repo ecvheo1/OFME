@@ -2,6 +2,7 @@ const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
 
 const mainDao = require("./mainDao");
+const mainService = require("./mainService");
 // Provider: Read 비즈니스 로직 처리
 
 /**
@@ -79,6 +80,7 @@ exports.retreiveCharacter = async function(userId, characterStatus1, characterSt
   let characterResult = {};
   const characterImageResult = await mainDao.selectCharacterImage(connection, userId, characterStatus1, characterStatus2);
   const characterDataResult = await mainDao.selectCharacterData(connection, userId);
+  const characterTimeResult = await mainDao.selectCharacterTime(connection, userId);
 
   let image = [];
   for (i of characterImageResult) {
@@ -88,6 +90,12 @@ exports.retreiveCharacter = async function(userId, characterStatus1, characterSt
   characterResult.conceptProgressCheck = 'O';
   characterResult.image = image;
   characterResult.data = characterDataResult;
+  characterResult.clientTime = characterTimeResult.clientTime;
+
+  // 컨셉을 받고 처음 메인화면을 조회했기 때문에 isFirstMain 값 F로 바꾸기
+  if(characterDataResult.isFirstMain == 'T') {
+    const editFirstMainInfo = await mainService.editFirstMain(userId);
+  }
   
   connection.release();
 
