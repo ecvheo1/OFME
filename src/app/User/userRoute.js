@@ -48,7 +48,7 @@ module.exports = function(app){
 
 
 
-    
+
     // 애플 로그인 Web Test
     app.get('/test/apple/login', (req,res) => {
         console.log(Date().toString() + "GET /test/apple/login");
@@ -59,26 +59,6 @@ module.exports = function(app){
         res.send(auth._tokenGenerator.generate());
     });
 
-    app.post('/auth', bodyParser(), async (req, res) => {
-        try {
-            console.log( Date().toString() + "POST /auth");
-            const response = await auth.accessToken(req.body.code);
-            const idToken = jwt.decode(response.id_token);
-    
-            const user = {};
-            user.id = idToken.sub;
-    
-            if (idToken.email) user.email = idToken.email;
-            if (req.body.user) {
-                const { name } = JSON.parse(req.body.user);
-                user.name = name;
-            }
-    
-            res.json(user);
-        } catch (ex) {
-            console.error(ex);
-            res.send("An error occurred!");
-        }
-    });
+    app.post('/auth', bodyParser(), user.appleLogin);
 
 };
