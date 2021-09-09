@@ -282,7 +282,7 @@ exports.appleLogin = async function(req, res) {
         if (socialIdCheckRows.length > 0) {
             let token = await jwt.sign(
                 {
-                userId: socialIdCheckRows[0].userId,
+                userId: socialIdCheckRows[0].id,
                 }, 
                 secret_config.jwtsecret,
                 {
@@ -290,9 +290,9 @@ exports.appleLogin = async function(req, res) {
                 subject: "userInfo",
                 }
             );
-            const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].userId);
+            const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].id);
             console.log(tokenInsertResult);
-            return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].userId, jwt: token }});
+            return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].id, jwt: token }});
     } else { // 회원가입이 안 되어 있는 애플로그인 유저
         const insertAppleUserRows = await userDao.insertAppleUser(connection, appleId, email, profileImg);
         let token = await jwt.sign(
