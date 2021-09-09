@@ -257,7 +257,8 @@ exports.appleLogin = async function(req, res) {
     try {
         response = await auth.accessToken(code);
         idToken = jwt.decode(response.id_token);
-        console.log(response, idToken);
+        console.log(response);
+        console.log(idToken);
     } catch (err) {
         connection.release();
         console.log(err);
@@ -269,7 +270,8 @@ exports.appleLogin = async function(req, res) {
 
     const profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
 
-    console.log(email, appleId);
+    console.log(email);
+    console.log(appleId);
 
 
     // 회원가입이 되어 있는 애플로그인 유저인지 확인
@@ -289,6 +291,7 @@ exports.appleLogin = async function(req, res) {
                 }
             );
             const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].userId);
+            console.log(tokenInsertResult);
             return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].userId, jwt: token }});
     } else { // 회원가입이 안 되어 있는 애플로그인 유저
         const insertAppleUserRows = await userDao.insertAppleUser(connection, appleId, email, profileImg);
@@ -303,6 +306,7 @@ exports.appleLogin = async function(req, res) {
         }
         );
         const tokenInsertResult = await userService.tokenInsert(token, insertAppleUserRows.insertId);
+        console.log(tokenInsertResult);
         return res.send({ isSuccess:true, code:1001, message:"회원가입성공(애플), 닉네임 설정해주세요.", "result": { id: insertAppleUserRows.insertId, jwt: token }});
     }
     } catch (err) {
@@ -312,6 +316,7 @@ exports.appleLogin = async function(req, res) {
         connection.release();
     }
 };
+
 
 exports.getNickname = async function(req, res) {
     const nickname = req.params.nicknames;
