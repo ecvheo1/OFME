@@ -259,6 +259,7 @@ exports.appleLogin = async function(req, res) {
         idToken = jwt.decode(response.id_token);
         console.log(response, idToken);
     } catch (err) {
+        connection.release();
         console.log(err);
         return res.json({isSuccess: true, code: 2000, message: "유효하지 않은 code입니다.",});
     }
@@ -273,22 +274,22 @@ exports.appleLogin = async function(req, res) {
 
     // 회원가입이 되어 있는 애플로그인 유저인지 확인
     try {
-    const socialIdCheckRows = await userDao.socialIdCheck(connection, appleId);
-    console.log(socialIdCheckRows);
-    // 회원가입이 되어 있는 애플로그인 유저
-    if (socialIdCheckRows.length > 0) {
-        let token = await jwt.sign(
-            {
-            userId: socialIdCheckRows[0].userId,
-            }, 
-            secret_config.jwtsecret,
-            {
-            expiresIn: "365d",
-            subject: "userInfo",
-            }
-        );
-        const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].userId);
-        return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].userId, jwt: token }});
+        const socialIdCheckRows = await userDao.socialIdCheck(connection, appleId);
+        console.log(socialIdCheckRows);
+        // 회원가입이 되어 있는 애플로그인 유저
+        if (socialIdCheckRows.length > 0) {
+            let token = await jwt.sign(
+                {
+                userId: socialIdCheckRows[0].userId,
+                }, 
+                secret_config.jwtsecret,
+                {
+                expiresIn: "365d",
+                subject: "userInfo",
+                }
+            );
+            const tokenInsertResult = await userService.tokenInsert(token, socialIdCheckRows[0].userId);
+            return res.send({ isSuccess:true, code:1000, message:"애플 로그인 성공", "result": { id: socialIdCheckRows[0].userId, jwt: token }});
     } else { // 회원가입이 안 되어 있는 애플로그인 유저
         const insertAppleUserRows = await userDao.insertAppleUser(connection, appleId, email, profileImg);
         let token = await jwt.sign(
@@ -308,6 +309,6 @@ exports.appleLogin = async function(req, res) {
         console.log(err);
         return res.json(errResponse(baseResponse.APPLE_LOGIN_FAILURE));
     } finally {
-    connection.release();
+        connection.release();
     }
 };
