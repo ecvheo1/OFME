@@ -312,3 +312,23 @@ exports.appleLogin = async function(req, res) {
         connection.release();
     }
 };
+
+exports.getNickname = async function(req, res) {
+    const nickname = req.params.nicknames;
+
+    if(!nickname)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    
+    if(nickname.length < 2 || nickname.length > 10)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
+    
+    if(!/^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$/.test(nickname))
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_TYPE));
+    
+    // 닉네임 중복 확인
+    const nicknameRows = await userProvider.nicknameCheck(nickname);
+        if(nicknameRows.length > 0)
+            return res.send(errResponse(baseResponse.SIGNUP_REDUNDANT_NICKNAME));
+
+    return res.send({ isSuccess:true, code:1000, message:"사용 가능한 닉네임입니다."});
+}
