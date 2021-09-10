@@ -195,26 +195,50 @@ exports.deleteUser = async function(userId, email) {
 exports.socialSignUp = async function(socialId, email, profileImg) {
     try {
         const connection = await pool.getConnection(async(conn) => conn);
-        const userRows = [socialId, email, profileImg];
-        const socialSignUpRows = await userDao.socialSignUp(connection, userRows);
-        connection.release();
+        try {
+            const userRows = [socialId, email, profileImg];
 
-        return socialSignUpRows;
-    } catch (err){
-        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+            await connection.beginTransaction();
+
+            const socialSignUpRows = await userDao.socialSignUp(connection, userRows);
+
+            await connection.commit();
+            connection.release();
+
+            return socialSignUpRows;
+        } catch (err){
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - socialSignUp Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - socialSignUp Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
 
+
 exports.tokenInsert = async function(token, userId) {
     try {
         const connection = await pool.getConnection(async(conn) => conn);
-        const insertTokenRows = await userDao.insertToken(connection, userId, token);
-        connection.release();
+        try {
+            await connection.beginTransaction();
 
-        return insertTokenRows;
-    } catch (err){
-        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+            const insertTokenRows = await userDao.insertToken(connection, userId, token);
+
+            await connection.commit();
+            connection.release();       
+
+            return insertTokenRows;
+        } catch (err){
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - tokenInsert Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - tokenInsert Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
@@ -222,13 +246,25 @@ exports.tokenInsert = async function(token, userId) {
 exports.nicknameInsert = async function(nickname, userId) {
     try {
         const connection = await pool.getConnection(async(conn) => conn);
-        const nicknameInsertRows = [nickname, userId];
-        const insertTokenRows = await userDao.nicknameInsert(connection, nicknameInsertRows);
-        connection.release();
+        try {
+            const nicknameInsertRows = [nickname, userId];
 
-        return response(baseResponse.SUCCESS);
-    } catch (err){
-        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+            await connection.beginTransaction();
+
+            const insertTokenRows = await userDao.nicknameInsert(connection, nicknameInsertRows);
+
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS);
+        } catch (err){
+            await connection.rollback();
+            connection.release();
+            logger.error(`App - nicknameInsert Service error\n: ${err.message}`);
+            return errResponse(baseResponse.DB_ERROR);
+        }
+    } catch (err) {
+        logger.error(`App - nicknameInsert Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
