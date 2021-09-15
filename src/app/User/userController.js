@@ -136,9 +136,9 @@ exports.nickname = async function(req,res) {
 
 // 카카오 인가코드 받기
 passport.use('kakao-login', new kakaoStrategy({ 
-    clientID: 'a6ea49ae917b0c13e34421ae4445b9c1',
+    clientID: '7b3ee3480129635ca1fc7e8bd63f8867',
     callbackURL: '/auth/kakao/login/callback',
-}, async (accessToken, refreshToken, profile, done) => { 
+}, async (accessToken, refreshToken, profile, done) => {
     console.log(accessToken);
     console.log(profile); 
 }));
@@ -154,7 +154,7 @@ exports.kakaoLogin = async function (req, res) {
 */
     const accessToken = req.body.accessToken;
     const api_url = "https://kapi.kakao.com/v2/user/me";
-    var email, profileImg, nickname, id;
+    var email, profileImg, id;
     console.log(accessToken);
     if(!accessToken)
         return res.send(errResponse("카카오 토큰을 입력해주세요."))
@@ -170,7 +170,7 @@ exports.kakaoLogin = async function (req, res) {
             id = response.data.id;
             email = response.data.kakao_account.email;
             if(!email) email = null;
-            profileImg = response.data.properties.profile_image;
+            profileImg = response.data.kakao_account.profile.profile_image_url;
             if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
             
             const socialId = 'K' + String(id);
