@@ -174,9 +174,10 @@ exports.kakaoLogin = async function (req, res) {
             if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
             
             const socialId = 'K' + String(id);
-
+            try{
             // 가입이 되어있는 유저인지
             const userIdResult = await userProvider.selectUserId(socialId);
+            console.log(userIdResult);
             let code, message;
             console.log(userIdResult);
             if(userIdResult == undefined || userIdResult.length < 1){
@@ -204,8 +205,13 @@ exports.kakaoLogin = async function (req, res) {
                     subject: "userInfo",
                 } // 유효 기간 365일
             );
+            console.log(userId);
             const tokenInsertResult = await userService.tokenInsert(token, userId);
             return res.send({ isSuccess:true, code:code, message:message, "result": { id: userId, jwt: token }});
+            } catch (err) {
+            console.log(err);
+            return res.json(errResponse(baseResponse.APPLE_LOGIN_FAILURE));
+            } 
         }).catch(function (error) {
             return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
             });
@@ -218,6 +224,7 @@ exports.kakaoLogin = async function (req, res) {
 exports.loginNickname = async function(req,res) {
     const { nickname } = req.body;
     const userId = req.verifiedToken.userId;
+    console.log(userId);
     const userRows = await userProvider.getUser(userId);
     if (!userRows)
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
