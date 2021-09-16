@@ -201,7 +201,7 @@ exports.socialSignUp = async function(socialId, email, profileImg) {
 
         return socialSignUpRows;
     } catch (err){
-        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+        logger.error(`App - socialSignUp Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
@@ -228,7 +228,7 @@ exports.nicknameInsert = async function(nickname, userId) {
 
         return response(baseResponse.SUCCESS);
     } catch (err){
-        logger.error(`App - Withdraw Service error\n: ${err.message}`);
+        logger.error(`App - nicknameInsert Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
 };
