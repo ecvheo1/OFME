@@ -33,8 +33,6 @@ exports.editTimer = async function (userId, timer) {
             return errResponse(baseResponse.DB_ERROR);
         }
     } catch (err) {
-        await connection.rollback();
-        connection.release();
         logger.error(`App - editTimer Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
@@ -62,8 +60,6 @@ exports.editEnd = async function(userId) {
             return errResponse(baseResponse.DB_ERROR);
         }
     } catch (err) {
-        await connection.rollback();
-        connection.release();
         logger.error(`App - editEnd Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }

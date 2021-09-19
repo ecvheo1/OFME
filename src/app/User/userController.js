@@ -136,7 +136,7 @@ exports.nickname = async function(req,res) {
 
 // 카카오 인가코드 받기
 passport.use('kakao-login', new kakaoStrategy({ 
-    clientID: 'a6ea49ae917b0c13e34421ae4445b9c1',
+    clientID: '7b3ee3480129635ca1fc7e8bd63f8867',
     callbackURL: '/auth/kakao/login/callback',
 }, async (accessToken, refreshToken, profile, done) => { 
     console.log(accessToken);
