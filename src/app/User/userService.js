@@ -215,7 +215,7 @@ exports.tokenInsert = async function(token, userId) {
         return insertTokenRows;
     } catch (err){
         logger.error(`App - tokenInsert Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
+        return res.send(errResponse(baseResponse.DB_ERROR));
     }
 };
 

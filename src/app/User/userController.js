@@ -138,7 +138,7 @@ exports.nickname = async function(req,res) {
 passport.use('kakao-login', new kakaoStrategy({ 
     clientID: '7b3ee3480129635ca1fc7e8bd63f8867',
     callbackURL: '/auth/kakao/login/callback',
-}, async (accessToken, refreshToken, profile, done) => { 
+}, async (accessToken, refreshToken, profile, done) => {
     console.log(accessToken);
     console.log(profile); 
 }));
@@ -154,7 +154,7 @@ exports.kakaoLogin = async function (req, res) {
 */
     const accessToken = req.body.accessToken;
     const api_url = "https://kapi.kakao.com/v2/user/me";
-    var email, profileImg, nickname, id;
+    var email, profileImg, id;
     console.log(accessToken);
     if(!accessToken)
         return res.send(errResponse("카카오 토큰을 입력해주세요."))
@@ -170,13 +170,14 @@ exports.kakaoLogin = async function (req, res) {
             id = response.data.id;
             email = response.data.kakao_account.email;
             if(!email) email = null;
-            profileImg = response.data.properties.profile_image;
+            profileImg = response.data.kakao_account.profile.profile_image_url;
             if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
             
             const socialId = 'K' + String(id);
-
+            try{
             // 가입이 되어있는 유저인지
             const userIdResult = await userProvider.selectUserId(socialId);
+            console.log(userIdResult);
             let code, message;
             console.log(userIdResult);
             if(userIdResult == undefined || userIdResult.length < 1){
@@ -204,8 +205,13 @@ exports.kakaoLogin = async function (req, res) {
                     subject: "userInfo",
                 } // 유효 기간 365일
             );
+            console.log(userId);
             const tokenInsertResult = await userService.tokenInsert(token, userId);
             return res.send({ isSuccess:true, code:code, message:message, "result": { id: userId, jwt: token }});
+            } catch (err) {
+            console.log(err);
+            return res.json(errResponse(baseResponse.APPLE_LOGIN_FAILURE));
+            } 
         }).catch(function (error) {
             return res.send(errResponse(baseResponse.KAKAO_LOGIN_FAILURE));
             });
@@ -218,6 +224,7 @@ exports.kakaoLogin = async function (req, res) {
 exports.loginNickname = async function(req,res) {
     const { nickname } = req.body;
     const userId = req.verifiedToken.userId;
+    console.log(userId);
     const userRows = await userProvider.getUser(userId);
     if (!userRows)
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
@@ -316,6 +323,7 @@ exports.appleLogin = async function(req, res) {
         connection.release();
     }
 };
+//
 
 
 exports.getNickname = async function(req, res) {

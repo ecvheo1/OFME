@@ -41,7 +41,7 @@ module.exports = function(app){
     // 애플 로그인 API
     app.post("/login/apple", user.appleLogin);
 
-    // 닉네임 중복확인 API
+    // 닉네임 중복확인 API //
     app.get('/login/nickname/:nicknames', user.getNickname);
 
 
