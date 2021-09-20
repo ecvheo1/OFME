@@ -167,9 +167,10 @@ exports.kakaoLogin = async function (req, res) {
                 Authorization: 'Bearer ' + accessToken,
             }
         }).then(async function (response) {
+            console.log(accessToken);
             id = response.data.id;
             email = response.data.kakao_account.email;
-            if(!email) email = null;
+            if(!email) email = 'kakao email';
             profileImg = response.data.kakao_account.profile.profile_image_url;
             if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
             
