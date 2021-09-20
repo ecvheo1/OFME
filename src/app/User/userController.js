@@ -169,6 +169,8 @@ exports.kakaoLogin = async function (req, res) {
         }).then(async function (response) {
             id = response.data.id;
             email = response.data.kakao_account.email;
+            console.log(id);
+            console.log(email);
             if(!email) email = null;
             profileImg = response.data.kakao_account.profile.profile_image_url;
             if(!profileImg) profileImg = 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png';
