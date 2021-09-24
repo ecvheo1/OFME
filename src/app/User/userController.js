@@ -91,7 +91,7 @@ exports.autoLogin = async function(req,res) {
 
     const token = req.headers['x-access-token'];
     const checkJWT = await userProvider.checkJWT(userIdFromJwt);
-
+    console.log(checkJWT)
     if(checkJWT.length < 1)
         return res.send(errResponse(baseResponse.TOKEN_VERIFICATION_FAILURE));
     else if (token == checkJWT[0].jwt)
@@ -118,9 +118,8 @@ exports.logout = async function(req,res) {
 exports.withdraw = async function(req,res) {
 
     const userIdFromJwt = req.verifiedToken.userId;
-    const emailFromJwt = req.verifiedToken.email;
 
-    const deleteUserResponse = await userService.deleteUser(userIdFromJwt, emailFromJwt);
+    const deleteUserResponse = await userService.deleteUser(userIdFromJwt);
 
     return res.send(deleteUserResponse);
 }
