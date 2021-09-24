@@ -31,13 +31,13 @@ async function selectUserNickname(connection, nickname) {
 }
 
 // 유저 상태 확인
-async function selectUserStatus(connection, email) {
+async function selectUserStatus(connection, userId) {
   const selectUserStatusListQuery = `
-                SELECT id, email, status 
+                SELECT id, status 
                 FROM User
-                WHERE email = ?;
+                WHERE id = ?;
                 `;
-  const [userStatusRows] = await connection.query(selectUserStatusListQuery, email);
+  const [userStatusRows] = await connection.query(selectUserStatusListQuery, userId);
   return userStatusRows;
 }
 

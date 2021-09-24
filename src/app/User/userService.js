@@ -159,7 +159,7 @@ exports.deleteJWT = async function(userId) {
     }
 };
 
-exports.deleteUser = async function(userId, email) {
+exports.deleteUser = async function(userId) {
     try {
         const connection = await pool.getConnection(async(conn) => conn);
         try {
@@ -167,7 +167,8 @@ exports.deleteUser = async function(userId, email) {
         await connection.beginTransaction();
 
         // 계정 상태 확인
-        const userInfoRows = await userProvider.accountCheck(email);
+        const userInfoRows = await userProvider.accountCheck(userId);
+        console.log(userInfoRows);
         if (userInfoRows[0].status === "Deleted") {
             return errResponse(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT);
         }
