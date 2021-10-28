@@ -47,7 +47,8 @@ async function selectUserJwt(connection, userId) {
                 SELECT id, jwt
                 FROM Token
                 WHERE userId = ? and status = 'Activated'
-                ORDER BY id DESC;
+                ORDER BY id DESC
+                LIMIT 1;
                 `;
   const [userJwtRows] = await connection.query(selectUserJwtListQuery, userId);
   return userJwtRows;
