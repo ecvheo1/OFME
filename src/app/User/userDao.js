@@ -46,7 +46,8 @@ async function selectUserJwt(connection, userId) {
   const selectUserJwtListQuery = `
                 SELECT id, jwt
                 FROM Token
-                WHERE userId = ? and status = 'Activated';
+                WHERE userId = ? and status = 'Activated'
+                ORDER BY id DESC;
                 `;
   const [userJwtRows] = await connection.query(selectUserJwtListQuery, userId);
   return userJwtRows;

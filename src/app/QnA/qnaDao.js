@@ -71,10 +71,11 @@ WHERE QnAQuestion.sort = ? and share IS NULL and QnAQuestion.status = 'Activated
 // 질문 리스트 조회
 async function selectAnswers(connection, selectParams) {
   const selectQuestionsQuery = `
-SELECT question, answer, share, date_format(QnAQuestion.createAt, '%Y-%m-%d') as createAt
-FROM QnAQuestion
-INNER JOIN QnAAnswer ON QnAQuestion.id = QnAAnswer.questionId
-WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAQuestion.id = ?;
+SELECT url as imgUrl, answer, share, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
+FROM QnAAnswer
+INNER JOIN UserConcept ON QnAAnswer.userConceptId = UserConcept.id
+INNER JOIN ConceptImage ON UserConcept.conceptId = ConceptImage.conceptId
+WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAAnswer.questionId = ? and ConceptImage.situation = 'default1';
                 `;
   const [selectQuestionsRows] = await connection.query(selectQuestionsQuery, selectParams);
   return selectQuestionsRows;
@@ -262,6 +263,17 @@ values (?, ?);
   return insertQnAAroundRows;
 }
 
+// 질문 하나에 대한 조회
+async function selectQnA(connection, Params) {
+  const selectQnAQuery = `
+SELECT question
+FROM QnAQuestion
+WHERE QnAQuestion.id = ?
+                `;
+  const [selectQnARows] = await connection.query(selectQnAQuery, Params);
+  return selectQnARows;
+}
+
 
 
 module.exports = {
@@ -284,5 +296,6 @@ module.exports = {
   selectQuestionPages,
   selectRockIs,
   insertDeclarations,
-  insertQnAAround
+  insertQnAAround,
+  selectQnA,
 };

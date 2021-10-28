@@ -78,10 +78,11 @@ exports.getAnswers = async function (req, res) {
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
     
     const questionId = req.params.questionId;
+    const selectQnARows = await qnaProvider.selectQnA(userId, questionId);
     const selectAnswersRows = await qnaProvider.selectAnswers(userId, questionId);
 
     if (selectAnswersRows.length > 0)
-        return res.send(response(baseResponse.SUCCESS, selectAnswersRows));
+        return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(selectAnswersRows)));
     else
         return res.send(response(baseResponse.QNA_QUESTION_NOT_EXIST));
 };

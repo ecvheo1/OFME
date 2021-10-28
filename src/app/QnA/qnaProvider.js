@@ -50,6 +50,15 @@ exports.selectAnswers = async function (userId, questionId) {
   return selectAnswersResult;
 };
 
+exports.selectQnA = async function (questionId) {
+  const selectParams = [questionId];
+  const connection = await pool.getConnection(async (conn) => conn);
+  const selectQnAResult = await qnaDao.selectQnA(connection, selectParams);
+  connection.release();
+
+  return selectQnAResult;
+};
+
 exports.selectAnswersIs = async function (questionId, userId) {
   const selectParams = [questionId, userId];
   const connection = await pool.getConnection(async (conn) => conn);
