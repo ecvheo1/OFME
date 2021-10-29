@@ -25,9 +25,9 @@ exports.getMypage = async function (req, res) {
         isSuccess: true,
         code: 1000,
         message: '성공',
-        selectMypageResult: sumSelectMypages.selectMypageResult,
-        selectMyfriendResult: sumSelectMypages.selectMyfriendResult,
-        selectMyhistoryResult: sumSelectMypages.selectMyhistoryResult
+        MypageResult: sumSelectMypages.selectMypageResult,
+        CountMyfriend: sumSelectMypages.selectMyfriendResult.length,
+        MyfriendResult: sumSelectMypages.selectMyfriendResult,
       });
 };
 

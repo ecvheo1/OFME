@@ -10,11 +10,11 @@ exports.selectMypage = async function (userId) {
   const user = [userId, userId]
   const selectMypageResult = await mypageDao.selectMypage(connection, user);
   const selectMyfriendResult = await mypageDao.selectMyfriend(connection, userId);
-  const selectMyhistoryResult = await mypageDao.selectMyhistory(connection, userId);
+//  const selectMyhistoryResult = await mypageDao.selectMyhistory(connection, userId);
 
   connection.release();
 
-  return {selectMypageResult, selectMyfriendResult, selectMyhistoryResult};
+  return {selectMypageResult, selectMyfriendResult};
 };
 
 exports.selectMypageDetail = async function (userId) {

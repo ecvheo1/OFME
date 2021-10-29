@@ -15,7 +15,7 @@ async function selectQuestions(connection, selectParams) {
   FROM (
     SELECT *, RANK() OVER (PARTITION BY qna.sort ORDER BY qna.question ASC, qna.id ASC) AS a
     FROM QnAQuestion AS qna
-      WHERE (sort = 'D' or sort = 'T')and status = 'Activated'
+      WHERE sort = 'D' and status = 'Activated'
   ) AS rankrow
   LEFT JOIN QnAAnswer on QnAAnswer.questionId = rankrow.id and QnAAnswer.userId = ? and QnAAnswer.status = 'Activated'
   WHERE rankrow.a <= 20 and rankrow.status = 'Activated' 
@@ -71,10 +71,11 @@ WHERE QnAQuestion.sort = ? and share IS NULL and QnAQuestion.status = 'Activated
 // 질문 리스트 조회
 async function selectAnswers(connection, selectParams) {
   const selectQuestionsQuery = `
-SELECT question, answer, share, date_format(QnAQuestion.createAt, '%Y-%m-%d') as createAt
-FROM QnAQuestion
-INNER JOIN QnAAnswer ON QnAQuestion.id = QnAAnswer.questionId
-WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAQuestion.id = ?;
+SELECT url as imgUrl, answer, share, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
+FROM QnAAnswer
+INNER JOIN UserConcept ON QnAAnswer.userConceptId = UserConcept.id
+INNER JOIN ConceptImage ON UserConcept.conceptId = ConceptImage.conceptId
+WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAAnswer.questionId = ? and ConceptImage.situation = 'default1';
                 `;
   const [selectQuestionsRows] = await connection.query(selectQuestionsQuery, selectParams);
   return selectQuestionsRows;
@@ -222,11 +223,14 @@ ORDER BY RAND();
 
 async function selectQuestionPages(connection, Params) {
   const QuestionsQuery = `
-  SELECT question, User.imgUrl, User.nickname, User.id as userId, answer, QnAAnswer.id as answerId, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
-  FROM QnAQuestion
-  RIGHT JOIN QnAAnswer ON QnAQuestion.id = QnAAnswer.questionId
-  INNER JOIN User ON User.id = QnAAnswer.userId
-  WHERE QnAAnswer.status = 'Activated' and QnAAnswer.share = 'Y' and QnAAnswer.questionId = ?
+  SELECT User.nickname, ConceptImage.url, User.id as userId,
+         answer, QnAAnswer.id as answerId, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
+  FROM QnAAnswer
+  INNER JOIN UserConcept ON UserConcept.id = QnAAnswer.userConceptId
+  INNER JOIN ConceptImage ON ConceptImage.conceptId = UserConcept.conceptId
+  INNER JOIN User ON UserConcept.userId = User.id
+  WHERE QnAAnswer.status = 'Activated' and QnAAnswer.share = 'Y' and
+        QnAAnswer.questionId = ? and ConceptImage.situation = 'default1'
   ORDER BY QnAAnswer.createAt DESC;
                 `;
   const [QuestionsRows] = await connection.query(QuestionsQuery, Params);
@@ -262,6 +266,17 @@ values (?, ?);
   return insertQnAAroundRows;
 }
 
+// 질문 하나에 대한 조회
+async function selectQnA(connection, Params) {
+  const selectQnAQuery = `
+SELECT question
+FROM QnAQuestion
+WHERE QnAQuestion.id = ?
+                `;
+  const [selectQnARows] = await connection.query(selectQnAQuery, Params);
+  return selectQnARows;
+}
+
 
 
 module.exports = {
@@ -284,5 +299,6 @@ module.exports = {
   selectQuestionPages,
   selectRockIs,
   insertDeclarations,
-  insertQnAAround
+  insertQnAAround,
+  selectQnA,
 };
