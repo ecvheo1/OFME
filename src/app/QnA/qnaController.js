@@ -37,7 +37,7 @@ exports.getQuestionsList = async function (req, res) {
 
     const {sort, answers} = req.query;
     
-    if (sort !== 'O' && sort !== 'D' && sort !== 'T')
+    if (sort !== 'O' && sort !== 'D')
         return res.send(response(baseResponse.QNA_SORT_NOT_EXIST));
 
     if ((0 > answers || answers >= 4))
@@ -78,7 +78,7 @@ exports.getAnswers = async function (req, res) {
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
     
     const questionId = req.params.questionId;
-    const selectQnARows = await qnaProvider.selectQnA(userId, questionId);
+    const selectQnARows = await qnaProvider.selectQnA(questionId);
     const selectAnswersRows = await qnaProvider.selectAnswers(userId, questionId);
 
     if (selectAnswersRows.length > 0)
@@ -269,11 +269,12 @@ exports.getQuestionPages = async function (req, res) {
     const getRockIsRows = await qnaProvider.selectRockIs(questionId, userId);
 
     // 조회
+    const selectQnARows = await qnaProvider.selectQnA(questionId);
     const getQuestionPageRows = await qnaProvider.selectQuestionPages(questionId);
 
     // 잠금해제를 했다면
     if (getRockIsRows.length > 0)
-        return res.send(response(baseResponse.SUCCESS, getQuestionPageRows));
+        return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(getQuestionPageRows)));
         
     
     // 잠금해제를 안했다면 리워드를 차감
@@ -287,7 +288,7 @@ exports.getQuestionPages = async function (req, res) {
             return res.send(updateRewardRows);
         const insertQnAAroundResult = await qnaService.insertQnAAround(questionId, userId);
     }
-    return res.send(response(baseResponse.SUCCESS, getQuestionPageRows));
+    return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(getQuestionPageRows)));
 };
 
 /**
