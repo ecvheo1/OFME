@@ -41,4 +41,7 @@ module.exports = function(app){
 
     // 13. 둘러보기 답변 신고하기 API
     app.post('/declarations', jwtMiddleware, qna.postDeclarations);
+
+    // 14. 현재 진행중인 컨셉 조회 API
+    app.get('/myconcepts', jwtMiddleware, qna.getMyconcepts);
 };

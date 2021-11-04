@@ -309,3 +309,21 @@ exports.postDeclarations = async function (req, res) {
 
     return res.send(response(baseResponse.SUCCESS));
 };
+
+/**
+ * API No. 14
+ * API Name : 현재 진행중인 컨셉 조회 API
+ * [GET] /myconcepts
+ */
+exports.getMyconcepts = async function (req, res) {
+    const userId = req.verifiedToken.userId;
+    const userRows = await userProvider.getUser(userId);
+    if (!userRows)
+        return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
+
+    const selectMyconceptsRows = await qnaProvider.selectMyconcepts(userId);
+    if (selectMyconceptsRows.length < 1){
+        return res.send(response(baseResponse.SUCCESS, [{"conceptId": '-', "url": 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png'}]));
+    }
+    return res.send(response(baseResponse.SUCCESS, selectMyconceptsRows));
+};

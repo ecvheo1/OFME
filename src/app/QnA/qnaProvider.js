@@ -139,3 +139,12 @@ exports.selectRockIs = async function (questionId, userId) {
 
   return selectResult;
 };
+
+exports.selectMyconcepts = async function (userId) {
+  const selectParams = [userId];
+  const connection = await pool.getConnection(async (conn) => conn);
+  const selectResult = await qnaDao.selectMyconcepts(connection, selectParams);
+  connection.release();
+
+  return selectResult;
+};
