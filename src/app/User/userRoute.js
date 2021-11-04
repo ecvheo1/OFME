@@ -5,10 +5,10 @@ module.exports = function(app){
 
     const bodyParser = require('body-parser');
     const fs = require("fs");
-    const AppleAuth = require("apple-auth");
-    const config = fs.readFileSync("config/appleConfig.json");
-    const auth = new AppleAuth(config, "config/AuthKey.p8");
-    const jwt = require("jsonwebtoken");
+    //const AppleAuth = require("apple-auth");
+    //const config = fs.readFileSync("config/appleConfig.json");
+    //const auth = new AppleAuth(config, "config/AuthKey.p8");
+    //const jwt = require("jsonwebtoken");
 
     // 회원가입 API
     app.post('/sign-up', user.postUsers);
@@ -33,8 +33,8 @@ module.exports = function(app){
     
     // 카카오 로그인 API
     app.post('/login/kakao', user.kakaoLogin);
-    app.get('/kakao', passport.authenticate('kakao-login'));
-    
+    //app.get('/kakao', passport.authenticate('kakao-login'));
+
     // 닉네임 설정 API
     app.post('/login/nickname', jwtMiddleware, user.loginNickname);
 
@@ -48,17 +48,16 @@ module.exports = function(app){
 
 
 
+    // // 애플 로그인 Web Test
+    // app.get('/test/apple/login', (req,res) => {
+    //     console.log(Date().toString() + "GET /test/apple/login");
+    //     res.send(`<a href="${auth.loginURL()}">Sign in with Apple</a>`);
+    // });
 
-    // 애플 로그인 Web Test
-    app.get('/test/apple/login', (req,res) => {
-        console.log(Date().toString() + "GET /test/apple/login");
-        res.send(`<a href="${auth.loginURL()}">Sign in with Apple</a>`);
-    });
+    // app.get('/token', (req,res) => {
+    //     res.send(auth._tokenGenerator.generate());
+    // });
 
-    app.get('/token', (req,res) => {
-        res.send(auth._tokenGenerator.generate());
-    });
-
-    app.post('/auth', bodyParser(), user.appleLogin);
+    // app.post('/auth', bodyParser(), user.appleLogin);
 
 };

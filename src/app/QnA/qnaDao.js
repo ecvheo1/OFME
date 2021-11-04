@@ -277,6 +277,19 @@ WHERE QnAQuestion.id = ?
   return selectQnARows;
 }
 
+// 현재 컨셉 조회
+async function selectMyconcepts(connection, Params) {
+  const selectMyconceptsQuery = `
+select UserConcept.conceptId, ConceptImage.url
+from UserConcept
+inner join ConceptImage on ConceptImage.conceptId = UserConcept.conceptId
+where UserConcept.userId = ? and UserConcept.status = 'Activated' and ConceptImage.situation = 'default1'
+order by UserConcept.createAt desc
+limit 1;
+                `;
+  const [selectMyconceptsRows] = await connection.query(selectMyconceptsQuery, Params);
+  return selectMyconceptsRows;
+}
 
 
 module.exports = {
@@ -301,4 +314,5 @@ module.exports = {
   insertDeclarations,
   insertQnAAround,
   selectQnA,
+  selectMyconcepts,
 };
