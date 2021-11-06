@@ -80,9 +80,11 @@ exports.getAnswers = async function (req, res) {
     const questionId = req.params.questionId;
     const selectQnARows = await qnaProvider.selectQnA(questionId);
     const selectAnswersRows = await qnaProvider.selectAnswers(userId, questionId);
-
+    const result = [];
+    const question = selectQnARows[0];
+    result.push({question, selectAnswersRows});
     if (selectAnswersRows.length > 0)
-        return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(selectAnswersRows)));
+        return res.send(response(baseResponse.SUCCESS, result));
     else
         return res.send(response(baseResponse.QNA_QUESTION_NOT_EXIST));
 };
@@ -271,10 +273,12 @@ exports.getQuestionPages = async function (req, res) {
     // 조회
     const selectQnARows = await qnaProvider.selectQnA(questionId);
     const getQuestionPageRows = await qnaProvider.selectQuestionPages(questionId);
-
+    
+    const result = []
+    result.push({selectQnARows, getQuestionPageRows});
     // 잠금해제를 했다면
     if (getRockIsRows.length > 0)
-        return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(getQuestionPageRows)));
+        return res.send(response(baseResponse.SUCCESS, result));
         
     
     // 잠금해제를 안했다면 리워드를 차감
@@ -288,7 +292,8 @@ exports.getQuestionPages = async function (req, res) {
             return res.send(updateRewardRows);
         const insertQnAAroundResult = await qnaService.insertQnAAround(questionId, userId);
     }
-    return res.send(response(baseResponse.SUCCESS, selectQnARows.concat(getQuestionPageRows)));
+
+    return res.send(response(baseResponse.SUCCESS, result));
 };
 
 /**

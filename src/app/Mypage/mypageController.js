@@ -21,15 +21,19 @@ exports.getMypage = async function (req, res) {
 
     let sumSelectMypages = await mypageProvider.selectMypage(userId);
 
+    const MypageResult = sumSelectMypages.selectMypageResult;
+    const CountMyfriend = sumSelectMypages.selectMyfriendResult.length;
+    const MyfriendResult = sumSelectMypages.selectMyfriendResult;
+    const result = []
+    result.push({MypageResult, CountMyfriend, MyfriendResult});
+
     return res.send({
         isSuccess: true,
         code: 1000,
         message: '성공',
-        MypageResult: sumSelectMypages.selectMypageResult,
-        CountMyfriend: sumSelectMypages.selectMyfriendResult.length,
-        MyfriendResult: sumSelectMypages.selectMyfriendResult,
-      });
-};
+        result: result
+    });
+}
 
 /**
  * API No. 2
