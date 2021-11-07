@@ -100,7 +100,7 @@ exports.postAnswers = async function (req, res) {
     if (!userRows)
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
 
-    const {questionId, answer, share} = req.body;
+    const {questionId, answer, share, userConceptId} = req.body;
 
     if (share !== 'Y' && share !== 'N') return res.send(response(baseResponse.QNA_SHARE_NOT_EXIST));
     if (share.length < 1) return res.send(response(baseResponse.QNA_SHARE_NOT_EXIST));
@@ -112,11 +112,11 @@ exports.postAnswers = async function (req, res) {
     const getQuestionIsRows = await qnaProvider.selectQuestionIs(questionId);
     if (getQuestionIsRows < 1) return res.send(response(baseResponse.QNA_QUESTION_IS_NOT_EXIST));
 
-    // 유저가 이미 답변을 작성한 질문인지 확인
-    const getAnswersIsRows = await qnaProvider.selectAnswersIs(questionId, userId);
-    if (getAnswersIsRows.length > 0) return res.send(response(baseResponse.QNA_ANSEWER_EXIST));
+    // // 유저가 이미 답변을 작성한 질문인지 확인
+    // const getAnswersIsRows = await qnaProvider.selectAnswersIs(questionId, userId);
+    // if (getAnswersIsRows.length > 0) return res.send(response(baseResponse.QNA_ANSEWER_EXIST));
 
-    const postAnswersRows = await qnaService.createAnswers(questionId, userId, answer, share);
+    const postAnswersRows = await qnaService.createAnswers(questionId, userId, answer, share, userConceptId);
 
     return res.send(postAnswersRows);
 };
@@ -132,21 +132,21 @@ exports.patchAnswers = async function (req, res) {
     if (!userRows)
         return res.send(response(baseResponse.LOGIN_WITHDRAWAL_ACCOUNT));
 
-    const {questionId, answer, share} = req.body;
+    const {answerId, answer, share} = req.body;
 
     if (share !== 'Y' && share !== 'N') return res.send(response(baseResponse.QNA_SHARE_NOT_EXIST));
     if (share.length < 1) return res.send(response(baseResponse.QNA_SHARE_NOT_EXIST));
-    if (questionId.length < 1) return res.send(response(baseResponse.QNA_QUESTIONID_NOT_EXIST));
+    if (answerId.length < 1) return res.send(response(baseResponse.QNA_QUESTIONID_NOT_EXIST));
     if (answer.length < 1) return res.send(response(baseResponse.QNA_ANSEWER_NOT_EXIST));
     if (answer.length > 290) return res.send(response(baseResponse.QNA_ANSEWER_LENGTH_NOT_EXIST));
 
-    const getQuestionIsRows = await qnaProvider.selectQuestionIs(questionId);
-    if (getQuestionIsRows < 1) return res.send(response(baseResponse.QNA_QUESTION_IS_NOT_EXIST));
+    // const getQuestionIsRows = await qnaProvider.selectQuestionIs(questionId);
+    // if (getQuestionIsRows < 1) return res.send(response(baseResponse.QNA_QUESTION_IS_NOT_EXIST));
 
-    const getAnswersIsRows = await qnaProvider.selectAnswersIs(questionId, userId);
-    if (getAnswersIsRows.length < 1) return res.send(response(baseResponse.QNA_ANSEWER_IS_NOT_EXIST));
+    // const getAnswersIsRows = await qnaProvider.selectAnswersIs(questionId, userId);
+    // if (getAnswersIsRows.length < 1) return res.send(response(baseResponse.QNA_ANSEWER_IS_NOT_EXIST));
 
-    const updateAnswersRows = await qnaService.updateAnswers(getAnswersIsRows[0].id, userId, answer, share, questionId);
+    const updateAnswersRows = await qnaService.updateAnswers(answerId, userId, answer, share);
 
     return res.send(updateAnswersRows);
 };

@@ -83,8 +83,8 @@ WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAAnswer.ques
 // 질문 리스트 조회
 async function createAnswers(connection, createAnswersParams) {
   const QuestionsQuery = `
-INSERT INTO QnAAnswer(questionId, userId, answer, share)
-VALUES (?, ? ,?, ?);
+INSERT INTO QnAAnswer(questionId, userId, answer, share, userConceptId)
+VALUES (?, ? ,?, ?, ?);
                 `;
   const [QuestionsRows] = await connection.query(QuestionsQuery, createAnswersParams);
   return QuestionsRows;
@@ -223,14 +223,14 @@ ORDER BY RAND();
 
 async function selectQuestionPages(connection, Params) {
   const QuestionsQuery = `
-  SELECT User.nickname, ConceptImage.url, User.id as userId,
-         answer, QnAAnswer.id as answerId, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
+  SELECT User.nickname, User.id as userId, answer, QnAAnswer.id as answerId, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt,
+         ifnull((SELECT ConceptImage.url FROM QnAAnswer
+           INNER JOIN UserConcept ON UserConcept.id = QnAAnswer.userConceptId
+            INNER JOIN ConceptImage ON ConceptImage.conceptId = UserConcept.conceptId
+             WHERE QnAAnswer.questionId = ? and ConceptImage.situation = 'default1' limit 1), 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png') as url
   FROM QnAAnswer
-  INNER JOIN UserConcept ON UserConcept.id = QnAAnswer.userConceptId
-  INNER JOIN ConceptImage ON ConceptImage.conceptId = UserConcept.conceptId
-  INNER JOIN User ON UserConcept.userId = User.id
-  WHERE QnAAnswer.status = 'Activated' and QnAAnswer.share = 'Y' and
-        QnAAnswer.questionId = ? and ConceptImage.situation = 'default1'
+  INNER JOIN User ON QnAAnswer.userId = User.id
+  WHERE QnAAnswer.status = 'Activated' and QnAAnswer.share = 'Y' and QnAAnswer.questionId = ?
   ORDER BY QnAAnswer.createAt DESC;
                 `;
   const [QuestionsRows] = await connection.query(QuestionsQuery, Params);
