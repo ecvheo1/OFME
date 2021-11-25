@@ -13,9 +13,9 @@ const {connect} = require("http2");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.createAnswers = async function (questionId, userId, answer, share, userConceptId) {
+exports.createAnswers = async function (questionId, userId, answer, share, conceptId) {
     try {
-        const createAnswersParams = [questionId, userId, answer, share, userConceptId];
+        const createAnswersParams = [questionId, userId, answer, share, conceptId];
         const createRewardParams = [userId, 2, '답변 공유'];
 
         const connection = await pool.getConnection(async(conn) => conn);
@@ -31,7 +31,7 @@ exports.createAnswers = async function (questionId, userId, answer, share, userC
             await connection.commit();
             connection.release();
 
-            return response(baseResponse.SUCCESS);
+            return answersResult;
         } catch (err) {
             await connection.rollback();
             connection.release();
@@ -55,7 +55,7 @@ exports.updateAnswers = async function (answerId, userId, answer, share) {
 
         await connection.beginTransaction();
         
-        const answersIsResult = await qnaProvider.selectAnswersIs(questionId, userId);
+        const answersIsResult = await qnaProvider.selectAnswersIs(answerId, userId);
 
         // if (answersIsResult[0].share === 'N' && share === 'Y')
         //     await qnaDao.createReward(connection, createRewardParams);
@@ -81,7 +81,7 @@ exports.updateAnswers = async function (answerId, userId, answer, share) {
     }
 };
 
-exports.deleteAnswers = async function (answerId, userId, questionId) {
+exports.deleteAnswers = async function (answerId, userId, answerId) {
     try {
         const connection = await pool.getConnection(async(conn) => conn);
         try {
@@ -90,7 +90,7 @@ exports.deleteAnswers = async function (answerId, userId, questionId) {
 
             await connection.beginTransaction();
 
-            const answersIsResult = await qnaProvider.selectAnswersIs(questionId, userId);
+            const answersIsResult = await qnaProvider.selectAnswersIs(answerId, userId);
             if(answersIsResult[0].share === 'Y')
                 await qnaDao.createReward(connection, deleteRewardParams);
 

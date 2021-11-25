@@ -109,7 +109,7 @@ module.exports = {
     QNA_ANSEWER_IS_NOT_EXIST : { "isSuccess": false, "code": 3139, "message": "해당 질문에 대한 답변이 존재하지 않아 수정이 불가합니다. 답변을 작성해주세요." },
     QNA_REWARD_NOT_EXIST : { "isSuccess": false, "code": 3140, "message": "리워드가 부족하여 해당 QnA 잠금해제를 할 수 없습니다." },
     QNA_AROUND_ANSEWER_NOT_EXIST : { "isSuccess": false, "code": 3141, "message": "해당 질문에 대한 답변이 없습니다." },
-
+    QNA_AROUND_CONCEPT_NOT_EXIST : { "isSuccess": false, "code": 3142, "message": "어떤 컨셉인지 입력해주세요." },
     //Connection, Transaction 등의 서버 오류
     DB_ERROR : { "isSuccess": false, "code": 4000, "message": "데이터 베이스 에러"},
     SERVER_ERROR : { "isSuccess": false, "code": 4001, "message": "서버 에러"},

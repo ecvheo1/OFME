@@ -71,10 +71,9 @@ WHERE QnAQuestion.sort = ? and share IS NULL and QnAQuestion.status = 'Activated
 // 질문 리스트 조회
 async function selectAnswers(connection, selectParams) {
   const selectQuestionsQuery = `
-SELECT url as imgUrl, answer, share, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
+SELECT QnAAnswer. id, url as imgUrl, answer, share, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt
 FROM QnAAnswer
-INNER JOIN UserConcept ON QnAAnswer.userConceptId = UserConcept.id
-INNER JOIN ConceptImage ON UserConcept.conceptId = ConceptImage.conceptId
+INNER JOIN ConceptImage ON QnAAnswer.conceptId = ConceptImage.conceptId
 WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAAnswer.questionId = ? and ConceptImage.situation = 'default1';
                 `;
   const [selectQuestionsRows] = await connection.query(selectQuestionsQuery, selectParams);
@@ -83,7 +82,7 @@ WHERE QnAAnswer.userId = ? and QnAAnswer.status = 'Activated' and QnAAnswer.ques
 // 질문 리스트 조회
 async function createAnswers(connection, createAnswersParams) {
   const QuestionsQuery = `
-INSERT INTO QnAAnswer(questionId, userId, answer, share, userConceptId)
+INSERT INTO QnAAnswer(questionId, userId, answer, share, conceptId)
 VALUES (?, ? ,?, ?, ?);
                 `;
   const [QuestionsRows] = await connection.query(QuestionsQuery, createAnswersParams);
@@ -103,7 +102,7 @@ async function selectAnswersIs(connection, selectParams) {
   const QuestionsQuery = `
 SELECT *
 FROM QnAAnswer
-where questionId = ? and userId = ? and status = 'Activated';
+where id = ? and userId = ? and status = 'Activated';
                 `;
   const [QuestionsRows] = await connection.query(QuestionsQuery, selectParams);
   return QuestionsRows;
@@ -225,8 +224,7 @@ async function selectQuestionPages(connection, Params) {
   const QuestionsQuery = `
   SELECT User.nickname, User.id as userId, answer, QnAAnswer.id as answerId, date_format(QnAAnswer.createAt, '%Y-%m-%d') as createAt,
          ifnull((SELECT ConceptImage.url FROM QnAAnswer
-           INNER JOIN UserConcept ON UserConcept.id = QnAAnswer.userConceptId
-            INNER JOIN ConceptImage ON ConceptImage.conceptId = UserConcept.conceptId
+            INNER JOIN ConceptImage ON ConceptImage.conceptId = QnAAnswer.conceptId
              WHERE QnAAnswer.questionId = ? and ConceptImage.situation = 'default1' limit 1), 'https://ofmebucket.s3.ap-northeast-2.amazonaws.com/profileImage.png') as url
   FROM QnAAnswer
   INNER JOIN User ON QnAAnswer.userId = User.id
