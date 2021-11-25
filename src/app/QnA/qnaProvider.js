@@ -123,7 +123,7 @@ exports.selectNoCheck = async function (userId) {
 };
 
 exports.selectQuestionPages = async function (questionId) {
-  const selectParams = [questionId];
+  const selectParams = [questionId, questionId];
   const connection = await pool.getConnection(async (conn) => conn);
   const selectResult = await qnaDao.selectQuestionPages(connection, selectParams);
   connection.release();
@@ -148,3 +148,4 @@ exports.selectMyconcepts = async function (userId) {
 
   return selectResult;
 };
+

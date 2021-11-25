@@ -61,6 +61,7 @@ exports.createUser = async function (email, password, checkPassword, nickname, i
     }
 };
 
+
 exports.postLogin = async function (email, password) {
     try {
         const connection = await pool.getConnection(async (conn) => conn);
