@@ -82,5 +82,8 @@ OFME Backend Repository
 </br>
 
 ## 📌OFME Notion Link
+https://periodic-case-901.notion.site/OFME-42a0ded294c447bc96efb76c1f818758
 
 ## 📌AppStore Download Link
+
+
